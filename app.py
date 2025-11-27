@@ -1,299 +1,227 @@
 import streamlit as st
+
 import torch
+
 import torch.nn as nn
+
 import torch.nn.functional as F
+
 from torchvision import transforms
+
 from PIL import Image
+
 import numpy as np
-import time
+
+
+
 
 
 # ==========================================================
-# 1. MODELO CNN
+
+# 1. MODELO CNN (SE MANTIENE)
+
 # ==========================================================
+
+
 
 class LungCNN(nn.Module):
+
     def __init__(self):
+
         super(LungCNN, self).__init__()
+
         self.net = nn.Sequential(
+
             nn.Conv2d(3, 112, kernel_size=3, padding=1), nn.ReLU(), nn.AvgPool2d(2),
 
-            nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(),
-            nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+
 
             nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(),
+
             nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+
+
+
+            nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(),
+
+            nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+
+
 
             nn.Conv2d(112, 56, kernel_size=3, padding=1), nn.ReLU(),
+
             nn.Conv2d(56, 56, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
 
+
+
             nn.Flatten(),
+
             nn.Dropout(0.2),
 
+
+
             nn.Linear(56 * 14 * 14, 3000), nn.ReLU(),
+
             nn.Linear(3000, 1500), nn.ReLU(),
+
             nn.Linear(1500, 3)
+
         )
 
+
+
     def forward(self, x):
+
         return self.net(x)
 
 
-def load_model(path="modelo_cnn_completo.pt"):
-    try:
-        model = torch.load(path, map_location=torch.device("cpu"))
-        model.eval()
-        return model
-    except:
-        return None
 
 
-def preprocess_image(file):
-    image = Image.open(file).convert("RGB")
-    image = image.resize((224, 224))
-    transform = transforms.Compose([transforms.ToTensor()])
-    return transform(image).unsqueeze(0)
 
-
-def predict_image(model, tensor):
-    categorias = ["Bengin cases", "Malignant cases", "Normal cases"]
-    with torch.no_grad():
-        salida = model(tensor)
-        probabilidades = F.softmax(salida, dim=1).numpy()[0]
-
-    idx = np.argmax(probabilidades)
-    clase = categorias[idx]
-    confianza = float(probabilidades[idx] * 100)
-    return clase, confianza
 
 
 # ==========================================================
-# 2. CONFIG PÁGINA
+
+# 2. CONFIG PÁGINA + FUENTES
+
 # ==========================================================
+
+
 
 st.set_page_config(
+
     page_title="DeepMed AI",
+
     page_icon="🫁",
+
     layout="wide"
+
 )
 
-# Fondo celeste con puntos pequeños
+
+
+# Google Fonts + FontAwesome (importante)
+
 st.markdown("""
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+""", unsafe_allow_html=True)
+
+
+
+# Fondo celeste con puntos
+
+st.markdown("""
+
 <style>
-body {
+
+/* Streamlit usa [data-testid="stAppViewContainer"] como body */
+
+[data-testid="stAppViewContainer"] {
+
     background-color: #BADFFF !important;
+
     background-image: radial-gradient(#000 0.5px, transparent 0.5px);
+
     background-size: 12px 12px;
+
+    font-family: 'Inter', sans-serif;
+
 }
+
 </style>
+
 """, unsafe_allow_html=True)
 
-
 # ==========================================================
-# 3. CSS GENERAL (LEFT + RIGHT)
+# 3. CSS DEL HEADER (CORREGIDO PARA FULL WIDTH)
 # ==========================================================
 
 st.markdown("""
 <style>
-
-:root {
-    --primary: #0A2647;
-    --accent: #2C74B3;
-    --purple: #AFA0F0;
+/* Ocultar el header default de Streamlit (la línea de colores y menú hamburguesa) si molesta */
+/* o ajustarlo para que no tape nuestro header */
+[data-testid="stHeader"] {
+    background-color: rgba(0,0,0,0);
+    z-index: 1; 
 }
 
-/* ---------------- LEFT AREA ---------------- */
-
-.upload-title {
-    font-size: 22px;
-    font-weight: 850;
-    color: var(--primary);
+/* Estilo para nuestro Header Personalizado */
+.custom-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw; /* 100% del ancho de la ventana */
+    padding: 1rem 3rem; /* Espaciado interno */
+    
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
-}
 
-.upload-box {
-    margin-top: 12px;
-    padding: 45px 25px;
-    border: 2px dashed var(--accent);
-    border-radius: 15px;
-    background-color: #F4F8FF;
-    text-align: center;
-}
-
-.upload-box:hover {
-    background-color: #EBF3FF;
-}
-
-.upload-icon {
-    font-size: 58px;
-    color: var(--accent);
-}
-
-.upload-main-text {
-    font-size: 20px;
-    font-weight: 700;
-    margin-top: 10px;
-}
-
-.upload-subtext {
-    font-size: 14px;
-    color: #444;
-    margin-top: -3px;
-    margin-bottom: 12px;
-}
-
-.upload-btn-visible {
-    background-color: white;
-    border: 2px solid var(--accent);
-    color: var(--accent);
-    padding: 8px 15px;
-    border-radius: 8px;
-    font-weight: 700;
-    display: inline-block;
-    cursor: pointer;
-}
-
-/* escondemos file uploader real */
-input[type="file"] {
-    opacity: 0;
-    position: absolute;
-    top: -300px;
-}
-
-/* Botón análisis */
-.analyze-btn {
-    width: 100%;
-    margin-top: 18px;
-    background-color: var(--purple);
+    background: linear-gradient(90deg, #00007A 0%, #6B6BDF 100%);
     color: white;
-    font-size: 18px;
-    font-weight: 700;
-    padding: 14px;
-    border-radius: 12px;
-    text-align: center;
-    cursor: pointer;
+    
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 9999; /* Para que quede por encima de todo */
 }
 
-/* ---------------- RIGHT AREA ---------------- */
+/* Ajuste para que el contenido de la app no quede oculto detrás del header fijo */
+[data-testid="stAppViewContainer"] > .main {
+    padding-top: 80px; 
+}
 
-.result-title {
-    font-size: 22px;
-    font-weight: 850;
-    color: var(--primary);
+.header-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 20px;
 }
 
-.result-placeholder {
-    margin-top: 30px;
-    text-align: center;
+.header-title h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    color: white !important;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    line-height: 1.2;
 }
 
-.result-icon {
-    font-size: 75px;
-    color: #CFCFCF;
+.header-title .subtitle {
+    font-size: 14px;
+    font-weight: 300;
+    opacity: 0.9;
+    color: #E0E0E0;
 }
 
-.placeholder-text {
-    font-size: 16px;
-    color: #444;
+/* Estilo específico para los íconos */
+.icon-style {
+    font-size: 32px; 
+    color: white;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
 
 # ==========================================================
-# 4. LAYOUT SIN CONTENEDORES
+# 4. HEADER HTML (CORREGIDO CON ÍCONO VISIBLE)
 # ==========================================================
 
-col1, col2 = st.columns([1, 1])
-
-# ==========================================================
-# LEFT AREA
-# ==========================================================
-with col1:
-
-    st.markdown("""
-        <div class="upload-title">
-            <i class="fa-solid fa-upload"></i>
-            SUBIR TOMOGRAFÍA (CT)
+st.markdown("""
+<div class="custom-header">
+    <div class="header-left">
+        <!-- Ícono de pulmones -->
+        <i class="fa-solid fa-lungs icon-style"></i>
+        
+        <div class="header-title">
+            <h1>DEEPMED AI</h1>
+            <div class="subtitle">Lung Cancer Detection System</div>
         </div>
-    """, unsafe_allow_html=True)
+    </div>
 
-    uploaded_file = st.file_uploader(
-        "",
-        type=["jpg", "jpeg", "png"],
-        label_visibility="collapsed"
-    )
-
-    st.markdown("""
-        <div class="upload-box">
-            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-
-            <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
-
-            <div class="upload-subtext">Soporta JPG, JPEG, PNG</div>
-
-            <div class="upload-btn-visible">Seleccionar Archivo</div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    if uploaded_file:
-        st.image(uploaded_file, use_column_width=True)
-
-    analyze_clicked = st.button("Iniciar Análisis")
-
-
-# ==========================================================
-# RIGHT AREA (placeholder)
-# ==========================================================
-with col2:
-
-    st.markdown("""
-        <div class="result-title">
-            <i class="fa-solid fa-file-medical"></i>
-            Resultados del Diagnóstico
-        </div>
-    """, unsafe_allow_html=True)
-
-    placeholder_zone = st.container()
-
-    with placeholder_zone:
-        st.markdown("""
-            <div class="result-placeholder">
-                <div class="result-icon"><i class="fa-solid fa-microscope"></i></div>
-                <div class="placeholder-text">
-                    Sube una imagen y presiona "Iniciar Análisis" para ver los resultados de la IA.
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-
-
-# ==========================================================
-# 5. PREDICCIÓN
-# ==========================================================
-
-model = load_model()
-
-if analyze_clicked:
-
-    if not uploaded_file:
-        st.error("Primero sube una imagen.")
-        st.stop()
-
-    with st.spinner("Procesando imagen..."):
-        tensor = preprocess_image(uploaded_file)
-        clase, confianza = predict_image(model, tensor)
-        time.sleep(1)
-
-    with placeholder_zone:
-        st.success("✔ Análisis completado")
-        st.markdown(f"""
-            <h2 style="color:#0A2647;">{clase}</h2>
-            <p>Nivel de confianza:</p>
-            <h3>{confianza:.2f}%</h3>
-        """, unsafe_allow_html=True)
+    <!-- Ícono de doctor cambiado a 'fa-user-md' que es más compatible -->
+    <i class="fa-solid fa-user-md icon-style" title="Medical Staff"></i>
+</div>
+""", unsafe_allow_html=True)

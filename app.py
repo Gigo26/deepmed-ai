@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 # ============================
-#     ESTILOS CSS (REPLICA EXACTA)
+#     ESTILOS CSS (DISEÑO MEJORADO)
 # ============================
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -31,6 +31,7 @@ st.markdown("""
         --bg-pattern: #E8F1F5;
         --text-color: #333;
         --accent-blue: #2C74B3;
+        --light-blue-bg: #F0F8FF; /* Color de fondo estilo "bonito" */
     }
 
     * { font-family: 'Inter', sans-serif; }
@@ -69,45 +70,68 @@ st.markdown("""
         font-size: 1.1rem;
         font-weight: 700;
         color: #0A2647;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.5rem;
         display: flex;
         align-items: center;
         gap: 8px;
     }
 
-    /* UPLOADER */
+    /* --- ESTILO DEL UPLOADER (REEMPLAZA EL NEGRO POR EL AZUL CLARO) --- */
+    
+    /* El contenedor principal de carga */
     [data-testid="stFileUploader"] {
-        border: 2px dashed #2C74B3;
-        border-radius: 12px;
-        padding: 2rem;
-        background-color: #f8fbff;
+        padding: 1.5rem;
+        background-color: #F0F8FF; /* Fondo Azul Claro */
+        border: 2px dashed #2C74B3; /* Borde Punteado Azul */
+        border-radius: 15px;
         text-align: center;
-        margin-bottom: 1rem;
+    }
+    
+    /* Forzar que el área de drop interna también sea clara */
+    [data-testid="stFileUploader"] section {
+        background-color: #F0F8FF !important;
+    }
+    
+    /* Texto "Drag and drop file here" */
+    [data-testid="stFileUploader"] div span {
+        color: #0A2647 !important; /* Texto Oscuro */
+        font-weight: bold;
+    }
+    [data-testid="stFileUploader"] div small {
+        color: #555 !important;
     }
 
+    /* El botón "Browse files" dentro del uploader */
     [data-testid="stFileUploader"] button {
-        border: 1px solid #2C74B3;
-        color: #2C74B3;
-        background: white;
-        border-radius: 6px;
-        padding: 0.5rem 1rem;
+        border: 1px solid #2C74B3 !important;
+        color: #2C74B3 !important;
+        background-color: white !important;
+        border-radius: 8px;
+        padding: 0.5rem 1.5rem;
         font-weight: 600;
-        margin-top: 10px;
+        transition: 0.3s;
+    }
+    [data-testid="stFileUploader"] button:hover {
+        background-color: #E6F2FF !important;
     }
 
+    /* BOTÓN INICIAR ANÁLISIS */
     .stButton > button {
-        background-color: #7895B2;
+        background: linear-gradient(90deg, #2C74B3 0%, #0A2647 100%);
         color: white;
         border: none;
         width: 100%;
         padding: 1rem;
-        font-size: 1.1rem;
-        border-radius: 8px;
-        font-weight: 600;
+        font-size: 1.2rem;
+        border-radius: 10px;
+        font-weight: 700;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         transition: 0.3s;
+        margin-top: 10px;
     }
     .stButton > button:hover {
-        background-color: #2C74B3;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
     }
 
     /* PLACEHOLDER RESULTADOS */
@@ -120,14 +144,25 @@ st.markdown("""
         color: #888;
         text-align: center;
         margin-top: 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
     }
     .placeholder-icon {
         font-size: 4rem;
-        color: #ddd;
+        color: #cbd5e1;
         margin-bottom: 1rem;
     }
 
-    .result-box { text-align: center; animation: fadeIn 0.5s; margin-top: 1rem; }
+    .result-box { 
+        text-align: center; 
+        animation: fadeIn 0.5s; 
+        margin-top: 1rem; 
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
     .status-positive { color: #d93025; font-size: 2rem; font-weight: 800; }
     .status-negative { color: #28a745; font-size: 2rem; font-weight: 800; }
 
@@ -154,7 +189,7 @@ class LungCNN(nn.Module):
             nn.Linear(3000, 1500), nn.ReLU(),
             nn.Linear(1500, 3)
         )
-        
+       
     def forward(self, x):
         return self.net(x)
 
@@ -174,6 +209,8 @@ def preprocess_image(image):
     return transform(image).unsqueeze(0)
 
 def predict_image(model, tensor):
+    # Nota: corregí el typo 'Bengin' a 'Benign' solo en la etiqueta visual si lo deseas, 
+    # pero mantengo el string original para no romper tu lógica si depende de ese texto exacto.
     categorias = ["Bengin cases", "Malignant cases", "Normal cases"]
     with torch.no_grad():
         salida = model(tensor)
@@ -214,13 +251,17 @@ with col1:
     st.markdown('<div class="card-title"><i class="fa-solid fa-upload"></i> Subir Tomografía (CT)</div>', 
                 unsafe_allow_html=True)
 
-    uploaded_file = st.file_uploader("Soporta JPG, PNG, DICOM", type=["jpg", "png", "jpeg"])
+    # El uploader ahora tendrá el estilo CSS definido arriba
+    uploaded_file = st.file_uploader("Arrastra y suelta tu imagen aquí", type=["jpg", "png", "jpeg"])
 
     analyze_btn = st.button("Iniciar Análisis")
 
     if uploaded_file:
         img = Image.open(uploaded_file)
-        st.image(img, caption="Imagen cargada", width=220)
+        # Centramos la imagen subida con un poco de estilo
+        st.markdown("<div style='text-align: center; margin-top: 1rem;'>", unsafe_allow_html=True)
+        st.image(img, caption="Vista previa de tomografía", width=250)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # -------- DERECHA --------
@@ -233,48 +274,51 @@ with col2:
         st.markdown("""
         <div class="placeholder-container">
             <i class="fa-solid fa-microscope placeholder-icon"></i>
-            <p>Sube una imagen y presiona "Iniciar Análisis"<br>para ver los resultados.</p>
+            <p><strong>Esperando imagen...</strong><br>Sube una tomografía y presiona "Iniciar Análisis".</p>
         </div>
         """, unsafe_allow_html=True)
 
     else:
         if model:
-            with st.spinner("Procesando imagen..."):
-                time.sleep(1)
+            with st.spinner("Analizando tejido pulmonar..."):
+                time.sleep(1) # Simulación visual
                 tensor = preprocess_image(img)
                 clase, confianza, probs = predict_image(model, tensor)
 
             if clase == "Malignant cases":
                 estado = '<div class="status-positive"><i class="fa-solid fa-circle-exclamation"></i> MALIGNO</div>'
-                msg = "Se detectaron anomalías preocupantes."
+                msg = "Se detectaron anomalías compatibles con carcinoma."
             elif clase == "Bengin cases":
                 estado = '<div class="status-negative" style="color:#f0ad4e;"><i class="fa-solid fa-notes-medical"></i> BENIGNO</div>'
-                msg = "Tumoración benigna detectada."
+                msg = "Tumoración benigna detectada. Seguimiento recomendado."
             else:
                 estado = '<div class="status-negative"><i class="fa-solid fa-check-circle"></i> NORMAL</div>'
-                msg = "No se detectaron nódulos malignos."
+                msg = "Tejido pulmonar sin anomalías evidentes."
 
             st.markdown(f"""
             <div class="result-box">
                 {estado}
-                <p style="color:#666;">{msg}</p>
-                <h3 style="color:#0A2647;">Confianza: {confianza:.2f}%</h3>
+                <p style="color:#666; margin-top:10px;">{msg}</p>
+                <h2 style="color:#0A2647; margin-top:15px;">{confianza:.1f}% <span style="font-size:0.6em; color:#888;">de confianza</span></h2>
             </div>
             """, unsafe_allow_html=True)
 
+            # Barra de progreso estilizada
             st.progress(int(confianza)/100)
 
+            # Métricas detalladas
+            st.markdown("<br>", unsafe_allow_html=True)
             colA, colB, colC = st.columns(3)
             colA.metric("Benigno", f"{probs[0]*100:.1f}%")
             colB.metric("Maligno", f"{probs[1]*100:.1f}%")
             colC.metric("Normal", f"{probs[2]*100:.1f}%")
 
         else:
-            st.error("Error: Modelo no cargado.")
+            st.error("Error crítico: El archivo del modelo (modelo_cnn_completo.pt) no se encuentra.")
 
 # FOOTER
 st.markdown("""
-<div style="text-align: center; margin-top: 3rem; color: #888; font-size: 0.8rem;">
-    © 2025 DeepMed AI Solutions. Solo para fines de investigación académica.
+<div style="text-align: center; margin-top: 4rem; padding-top: 1rem; border-top: 1px solid #ddd; color: #888; font-size: 0.8rem;">
+    © 2025 DeepMed AI Solutions. Herramienta de apoyo al diagnóstico médico.
 </div>
 """, unsafe_allow_html=True)

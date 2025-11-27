@@ -1,11 +1,9 @@
 streamlit
-torch==2.0.1+cpu
-torchvision==0.15.2+cpu
-torchaudio==2.0.2+cpu
-opencv-python-headless
+torch==2.2.0
+torchvision==0.17.0
+pillow
 numpy
-Pillow
+opencv-python-headless
+scikit-learn
 matplotlib
 seaborn
-scikit-learn
-imbalanced-learn

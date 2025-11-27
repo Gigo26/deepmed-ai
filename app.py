@@ -77,68 +77,38 @@ st.markdown("""
 
     /* UPLOADER */
     [data-testid="stFileUploader"] {
-    border: 2px dashed #2C74B3;
-    border-radius: 12px;
-    padding: 2.5rem 1rem;
-    background-color: #f0f6ff;
-    text-align: center;
-    transition: 0.3s ease;
-}
+        border: 2px dashed #2C74B3;
+        border-radius: 12px;
+        padding: 2rem;
+        background-color: #f8fbff;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
 
-[data-testid="stFileUploader"]:hover {
-    background-color: #e8f2ff;
-}
+    [data-testid="stFileUploader"] button {
+        border: 1px solid #2C74B3;
+        color: #2C74B3;
+        background: white;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        margin-top: 10px;
+    }
 
-/* Quitar el rectángulo negro */
-[data-testid="stFileUploader"] section {
-    background: transparent !important;
-    padding: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-
-/* Ícono de la nube */
-[data-testid="stFileUploader"] section::before {
-    content: "\\f0ee"; /* ícono cloud-upload de FontAwesome */
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    font-size: 3.5rem;
-    color: #2C74B3;
-    display: block;
-    margin-bottom: 1rem;
-}
-
-/* Texto: Arrastra y suelta tu imagen aquí */
-[data-testid="stFileUploader"] section > div:nth-child(1) {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #0A2647;
-    margin-bottom: 0.3rem;
-}
-
-/* Texto de formatos soportados */
-[data-testid="stFileUploader"] section > div:nth-child(2) {
-    font-size: 0.9rem;
-    color: #4a6fa1;
-    margin-bottom: 1rem;
-}
-
-/* Botón "Browse files" personalizado */
-[data-testid="stFileUploader"] button {
-    border: 1px solid #2C74B3;
-    background-color: white;
-    color: #2C74B3;
-    border-radius: 8px;
-    padding: 0.5rem 1.3rem;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: 0.3s ease;
-}
-
-[data-testid="stFileUploader"] button:hover {
-    background-color: #2C74B3;
-    color: white;
-}
+    .stButton > button {
+        background-color: #7895B2;
+        color: white;
+        border: none;
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.3s;
+    }
+    .stButton > button:hover {
+        background-color: #2C74B3;
+    }
 
     /* PLACEHOLDER RESULTADOS */
     .placeholder-container {

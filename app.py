@@ -154,27 +154,56 @@ body, [data-testid="stAppViewContainer"] {
     font-family: 'Inter', sans-serif;
 }
 
-/* === OCULTAR COMPLETAMENTE EL FILE UPLOADER (CUADRO NEGRO) === */
+/* === OCULTAR TODA LA ZONA DEL FILE UPLOADER DE STREAMLIT (DEFINITIVO) === */
+
+/* Oculta absolutamente todo lo que Streamlit renderiza */
+[data-testid="stFileUploader"] * {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Oculta el contenedor principal */
 [data-testid="stFileUploader"] {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    height: 0px !important;
     padding: 0 !important;
+    margin: 0 !important;
+    opacity: 0 !important;
 }
 
+/* Elimina la nube gris */
 [data-testid="stFileUploaderDropzone"] {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
 }
 
+/* Elimina textos: drag & drop, límites, etc */
+[data-testid="stFileUploaderInstructions"],
 [data-testid="stFileUploaderLabel"] {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
+/* Elimina por completo el botón negro Browse Files */
 [data-testid="stFileUploaderBrowseButton"] {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
+
+/* Elimina contenedores internos que Streamlit añade automáticamente */
+.css-1m1mtr7,
+.css-1n76uvr,
+.css-1uixxvy,
+.css-1v0mbdj {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
 /* ============================================================= */
 
 /* mantengo TODO el resto igual sin tocar nada */

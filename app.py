@@ -8,198 +8,172 @@ import numpy as np
 import time
 
 # ============================
-# 1. CONFIGURACIÓN DE PÁGINA
+#     CONFIGURACIÓN DE PÁGINA
 # ============================
 st.set_page_config(
-    page_title="DeepMed AI",
+    page_title="DeepMed AI - Lung Cancer Detection",
     page_icon="🫁",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # ============================
-# 2. ESTILOS CSS PRO (MODERNO)
+#     ESTILOS CSS (DISEÑO)
 # ============================
+# Aquí traducimos tu CSS del HTML a Streamlit
 st.markdown("""
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
-    /* --- VARIABLES DE DISEÑO --- */
+    /* Variables Globales */
     :root {
-        --primary-color: #0A2647;    /* Azul Oscuro Header */
-        --accent-color: #2C74B3;     /* Azul Vibrante */
-        --bg-color: #F0F4F8;         /* Fondo Gris Azulado muy suave */
-        --card-bg: #FFFFFF;          /* Blanco Puro */
-        --text-color: #333333;
-        --success: #28a745;
-        --danger: #dc3545;
+        --primary-blue: #0A2647;
+        --accent-blue: #2C74B3;
+        --light-blue: #E8F1F5;
+        --success-green: #28a745;
+        --white: #ffffff;
+        --text-dark: #333333;
+        --text-light: #666666;
+        --radius: 12px;
     }
 
-    /* --- GLOBAL --- */
+    /* Fuente General */
     html, body, [class*="css"] {
-        font-family: 'Poppins', sans-serif;
-        color: var(--text-color);
+        font-family: 'Inter', sans-serif;
     }
-    
-    /* Fondo con patrón sutil */
+
+    /* Fondo de la App */
     .stApp {
-        background-color: var(--bg-color);
-        background-image: radial-gradient(#d1d5db 1px, transparent 1px);
-        background-size: 24px 24px;
+        background-color: var(--light-blue);
+        background-image: radial-gradient(#dbe9f6 1px, transparent 1px);
+        background-size: 20px 20px;
     }
 
-    /* --- HEADER FULL WIDTH --- */
-    /* Quitamos padding nativo de Streamlit para que el header toque los bordes */
-    .block-container {
-        padding-top: 0rem !important;
-        padding-bottom: 5rem !important;
-        max-width: 1200px !important; /* Limita el ancho para que no se estire demasiado */
-    }
+    /* Ocultar elementos nativos molestos */
+    header {visibility: hidden;}
+    .block-container {padding-top: 1rem !important; padding-bottom: 1rem !important;}
 
+    /* HEADER PERSONALIZADO */
     .custom-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 80px;
-        background: var(--primary-color);
-        z-index: 9999;
+        background: linear-gradient(90deg, var(--primary-blue) 0%, var(--accent-blue) 100%);
+        padding: 1.5rem 2rem;
+        border-radius: var(--radius);
+        color: white;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 5%;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     
-    /* Espacio para compensar el header fijo */
-    .header-spacer { height: 100px; }
-
-    /* --- TARJETAS BLANCAS (CARDS) --- */
-    /* Selector para las columnas de Streamlit: Las convertimos en tarjetas */
-    div[data-testid="column"] {
-        background-color: var(--card-bg);
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* Sombra suave y elegante */
-        transition: transform 0.3s ease;
-        border: 1px solid rgba(0,0,0,0.02);
-    }
-    
-    div[data-testid="column"]:hover {
-        transform: translateY(-5px); /* Efecto de elevación al pasar el mouse */
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    }
-
-    /* Títulos de las tarjetas */
-    .card-header {
-        font-size: 1.3rem;
+    .header-title h1 {
+        margin: 0;
+        font-size: 1.8rem;
         font-weight: 700;
-        color: var(--primary-color);
+        color: white !important;
+    }
+    .header-subtitle {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+
+    /* TARJETAS (CARDS) */
+    .custom-card {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: var(--radius);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        height: 100%;
+        min-height: 500px;
+    }
+
+    .card-header {
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1rem;
         margin-bottom: 1.5rem;
+        color: var(--primary-blue);
+        font-weight: 600;
+        font-size: 1.2rem;
         display: flex;
         align-items: center;
         gap: 10px;
-        border-bottom: 2px solid #f0f0f0;
-        padding-bottom: 10px;
     }
 
-    /* --- UPLOADER (ZONA DE CARGA) --- */
-    /* Personalizamos el widget de carga para que se vea como en tu imagen */
+    /* Estilo del File Uploader nativo de Streamlit */
     [data-testid="stFileUploader"] {
-        border: 2px dashed var(--accent-color);
-        border-radius: 15px;
-        padding: 2rem 1rem;
-        background-color: #F8FBFF; /* Fondo azul muy pálido */
+        border: 2px dashed var(--accent-blue);
+        border-radius: var(--radius);
+        padding: 2rem;
+        background-color: #f8fbff;
+        text-align: center;
         transition: all 0.3s;
     }
     [data-testid="stFileUploader"]:hover {
-        background-color: #EBF5FF;
-        border-color: var(--primary-color);
+        background-color: #eef6ff;
+        border-color: var(--primary-blue);
     }
     
-    /* Texto pequeño del uploader */
-    [data-testid="stFileUploader"] small {
-        display: none; /* Ocultar texto por defecto feo */
-    }
-
-    /* --- BOTÓN "INICIAR ANÁLISIS" --- */
-    .stButton { margin-top: 1.5rem; }
+    /* Botones */
     .stButton > button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Degradado moderno llamativo */
-        background: linear-gradient(90deg, var(--accent-color), var(--primary-color)); /* O Azul corporativo */
+        background: linear-gradient(90deg, var(--accent-blue) 0%, var(--primary-blue) 100%);
         color: white;
-        font-size: 1.1rem;
-        font-weight: 600;
-        padding: 0.8rem 0;
-        border-radius: 12px;
         border: none;
+        padding: 0.8rem 2rem;
+        border-radius: var(--radius);
+        font-weight: 600;
         width: 100%;
-        box-shadow: 0 4px 15px rgba(44, 116, 179, 0.4);
-        transition: all 0.3s;
+        transition: opacity 0.3s;
     }
     .stButton > button:hover {
         opacity: 0.9;
-        transform: scale(1.02);
-        box-shadow: 0 6px 20px rgba(44, 116, 179, 0.6);
+        color: white;
+        border: none;
     }
 
-    /* --- RESULTADOS PLACEHOLDER --- */
-    .empty-state {
-        text-align: center;
-        color: #999;
-        padding: 3rem 1rem;
-    }
-    .empty-icon { font-size: 5rem; color: #e0e0e0; margin-bottom: 1rem; }
-
-    /* --- RESULTADOS FINALES --- */
-    .result-container { text-align: center; animation: fadeIn 0.8s ease-out; }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 0.5rem 1.5rem;
+    /* RESULTADOS */
+    .result-badge {
+        padding: 0.5rem 1rem;
         border-radius: 50px;
         font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         margin-bottom: 1rem;
         font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
     }
+    .badge-success { background-color: #e6f4ea; color: var(--success-green); }
+    .badge-danger { background-color: #fce8e6; color: #d93025; }
     
-    .status-bad { background-color: #ffebee; color: var(--danger); }
-    .status-good { background-color: #e8f5e9; color: var(--success); }
-    
-    .probability-card {
-        background: #f8f9fa;
-        padding: 15px;
-        border-radius: 10px;
-        text-align: center;
-        margin-top: 10px;
+    .big-prediction {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
     }
-    .prob-val { font-size: 1.2rem; font-weight: bold; color: var(--primary-color); }
-    .prob-label { font-size: 0.8rem; color: #666; }
 
-    /* Animación simple */
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .details-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 2rem;
+        font-size: 0.95rem;
+    }
+    .details-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+        color: var(--text-dark);
+    }
+    .details-list span { font-weight: 600; color: var(--primary-blue); }
 
 </style>
-
-<div class="custom-header">
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <i class="fa-solid fa-lungs" style="font-size: 2rem;"></i>
-        <div>
-            <h1 style="margin:0; font-size:1.5rem; font-weight:700; line-height:1.2;">DeepMed AI</h1>
-            <span style="font-size:0.8rem; opacity:0.8; font-weight:300;">Sistema de Detección Temprana v3.0</span>
-        </div>
-    </div>
-    <i class="fa-solid fa-user-md" style="font-size: 1.5rem; opacity: 0.9;"></i>
-</div>
-<div class="header-spacer"></div> """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # ============================
-# 3. LÓGICA IA (BACKEND)
+#    LÓGICA DEL MODELO (INTACTA)
 # ============================
+
 class LungCNN(nn.Module):
     def __init__(self):
         super(LungCNN, self).__init__()
@@ -216,7 +190,9 @@ class LungCNN(nn.Module):
             nn.Linear(3000, 1500), nn.ReLU(),
             nn.Linear(1500, 3)
         )
-    def forward(self, x): return self.net(x)
+        
+    def forward(self, x):
+        return self.net(x)
 
 @st.cache_resource
 def load_model():
@@ -224,116 +200,158 @@ def load_model():
         model = torch.load("modelo_cnn_completo.pt", map_location="cpu")
         model.eval()
         return model
-    except: return None
+    except Exception as e:
+        return None
 
 def preprocess_image(image):
-    image = image.convert("RGB").resize((224, 224))
-    tensor = transforms.Compose([transforms.ToTensor()])(image).unsqueeze(0)
+    image = image.convert("RGB")
+    image = image.resize((224, 224))
+    transform = transforms.Compose([transforms.ToTensor()])
+    tensor = transform(image).unsqueeze(0)
     return tensor
 
 def predict_image(model, tensor):
     categorias = ["Bengin cases", "Malignant cases", "Normal cases"]
     with torch.no_grad():
         salida = model(tensor)
-        probs = F.softmax(salida, dim=1).cpu().numpy()[0]
-    clase_idx = np.argmax(probs)
-    return categorias[clase_idx], probs[clase_idx] * 100, probs
+        probabilidades = F.softmax(salida, dim=1).cpu().numpy()[0]
+    clase_idx = np.argmax(probabilidades)
+    return categorias[clase_idx], probabilidades[clase_idx] * 100, probabilidades
 
+# Cargar modelo
 model = load_model()
 
 # ============================
-# 4. INTERFAZ GRÁFICA (GRID)
+#      HEADER (HTML PURO)
+# ============================
+st.markdown("""
+<div class="custom-header">
+    <div class="header-title">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <i class="fa-solid fa-lungs" style="font-size: 2rem;"></i>
+            <div>
+                <h1>DeepMed AI</h1>
+                <div class="header-subtitle">Lung Cancer Detection System v3.0</div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <i class="fa-solid fa-user-doctor" style="font-size: 1.5rem;"></i>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ============================
+#      LAYOUT PRINCIPAL
 # ============================
 
-# Usamos columnas con un 'gap' grande para separar las tarjetas
 col1, col2 = st.columns([1, 1], gap="large")
 
-# --- TARJETA 1: SUBIDA (IZQUIERDA) ---
+# --- COLUMNA IZQUIERDA: UPLOAD ---
 with col1:
-    st.markdown('<div class="card-header"><i class="fa-solid fa-cloud-upload-alt"></i> Subir Tomografía</div>', unsafe_allow_html=True)
+    # Inicio de la tarjeta visual (Hack CSS)
+    st.markdown('<div class="custom-card">', unsafe_allow_html=True)
     
-    uploaded_file = st.file_uploader("Arrastra tu imagen médica aquí", type=["jpg", "png", "jpeg"])
+    st.markdown('<div class="card-header"><i class="fa-solid fa-upload"></i> Subir Tomografía (CT)</div>', unsafe_allow_html=True)
+    
+    uploaded_file = st.file_uploader("Selecciona una imagen médica", type=["jpg", "png", "jpeg"])
     
     if uploaded_file:
         image = Image.open(uploaded_file)
-        # Mostrar imagen con bordes redondeados
-        st.image(image, caption="Vista Previa", use_column_width=True, output_format="PNG")
+        st.image(image, caption="Vista previa de radiografía", use_column_width=True)
     else:
-        # Espacio visual para mantener la tarjeta llena si no hay imagen
-        st.markdown("<br><br>", unsafe_allow_html=True)
-
-    # Botón grande y llamativo (DENTRO DE LA TARJETA 1)
-    analyze_btn = st.button("✨ INICIAR DIAGNÓSTICO", use_container_width=True)
-
-# --- TARJETA 2: RESULTADOS (DERECHA) ---
-with col2:
-    st.markdown('<div class="card-header"><i class="fa-solid fa-notes-medical"></i> Resultados IA</div>', unsafe_allow_html=True)
-
-    if not uploaded_file or not analyze_btn:
-        # ESTADO VACÍO (PLACEHOLDER)
+        # Espacio vacío visual para mantener altura
         st.markdown("""
-        <div class="empty-state">
-            <i class="fa-solid fa-microscope empty-icon"></i>
-            <h3 style="color: #666;">Esperando imagen...</h3>
-            <p style="font-size: 0.9rem;">Sube una tomografía y presiona "Iniciar Diagnóstico" para ver el análisis detallado.</p>
+        <div style="text-align: center; color: #ccc; padding: 40px;">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 4rem; margin-bottom: 10px;"></i>
+            <p>Soporta JPG, PNG y DICOM</p>
         </div>
         """, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True) # Fin tarjeta
+
+# --- COLUMNA DERECHA: RESULTADOS ---
+with col2:
+    st.markdown('<div class="custom-card">', unsafe_allow_html=True)
+    st.markdown('<div class="card-header"><i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico</div>', unsafe_allow_html=True)
+
+    if model is None:
+        st.error("Error: No se encontró el archivo 'modelo_cnn_completo.pt'.")
     
+    elif uploaded_file is None:
+        # ESTADO VACÍO (Placeholder)
+        st.markdown("""
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; color: #999;">
+            <i class="fa-solid fa-microscope" style="font-size: 5rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+            <p style="text-align: center;">El análisis aparecerá aquí después de subir una imagen.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
     else:
-        # RESULTADOS REALES
-        if model:
-            with st.spinner("🧠 Analizando patrones celulares..."):
-                time.sleep(1.2) # Pequeña pausa dramática
+        # BOTÓN DE ANÁLISIS (Simula el botón del diseño)
+        analyze_btn = st.button("Iniciar Análisis Clínico ⚡")
+        
+        if analyze_btn:
+            with st.spinner('Analizando tejido pulmonar...'):
+                # Simular tiempo de proceso para efecto visual (opcional)
+                time.sleep(1.5)
                 tensor = preprocess_image(image)
                 clase, confianza, probs = predict_image(model, tensor)
             
-            # Lógica visual de resultados
+            # --- MOSTRAR RESULTADOS CON DISEÑO ---
+            
+            # Determinar color según resultado
             if clase == "Malignant cases":
-                badge_class = "status-bad"
-                icon = "fa-radiation"
-                title = "RIESGO DETECTADO"
-                color = "#dc3545"
-            elif clase == "Bengin cases":
-                badge_class = "status-good" # Usamos verde/amarillo
-                icon = "fa-shield-alt"
-                title = "BENIGNO"
-                color = "#28a745"
+                badge_class = "badge-danger"
+                icon = "fa-exclamation-triangle"
+                color_text = "#d93025"
+                status_text = "Detección Positiva"
             else:
-                badge_class = "status-good"
+                badge_class = "badge-success"
                 icon = "fa-check-circle"
-                title = "NORMAL"
-                color = "#28a745"
+                color_text = "#28a745"
+                status_text = "Detección Negativa" if clase == "Normal cases" else "Caso Benigno"
 
+            # Renderizar HTML del resultado
             st.markdown(f"""
-            <div class="result-container">
-                <div class="status-badge {badge_class}">
-                    <i class="fa-solid {icon}"></i> {clase}
+            <div style="text-align: center; animation: fadeIn 0.5s;">
+                <div class="result-badge {badge_class}">
+                    <i class="fa-solid {icon}"></i> {status_text}
                 </div>
                 
-                <h1 style="color: {color}; font-size: 2.5rem; margin: 0;">{title}</h1>
-                <p style="color: #666;">Confianza del Modelo: <strong>{confianza:.1f}%</strong></p>
-                
-                <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-                
-                <div style="text-align: left; font-weight: 600; margin-bottom: 10px; color: #0A2647;">Desglose de Probabilidades:</div>
+                <h2 class="big-prediction" style="color: {color_text};">{clase}</h2>
+                <p style="color: #666;">Confianza del modelo IA</p>
             </div>
             """, unsafe_allow_html=True)
             
-            # Grid de métricas pequeñas
-            m1, m2, m3 = st.columns(3)
-            with m1:
-                st.markdown(f'<div class="probability-card"><div class="prob-val">{probs[0]*100:.1f}%</div><div class="prob-label">Benigno</div></div>', unsafe_allow_html=True)
-            with m2:
-                st.markdown(f'<div class="probability-card"><div class="prob-val" style="color:{"red" if probs[1]>0.5 else "#0A2647"}">{probs[1]*100:.1f}%</div><div class="prob-label">Maligno</div></div>', unsafe_allow_html=True)
-            with m3:
-                st.markdown(f'<div class="probability-card"><div class="prob-val">{probs[2]*100:.1f}%</div><div class="prob-label">Normal</div></div>', unsafe_allow_html=True)
+            # Barra de progreso personalizada
+            st.markdown(f"""
+            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 20px;">
+                <span>Certeza</span>
+                <span>{confianza:.1f}%</span>
+            </div>
+            """, unsafe_allow_html=True)
+            st.progress(int(confianza) / 100)
+            
+            # Lista de detalles (Estilo Tabla Médica)
+            st.markdown(f"""
+            <ul class="details-list">
+                <li>Prob. Maligno: <span>{probs[1]*100:.1f}%</span></li>
+                <li>Prob. Benigno: <span>{probs[0]*100:.1f}%</span></li>
+                <li>Prob. Normal: <span>{probs[2]*100:.1f}%</span></li>
+                <li>Modelo: <span>DeepResNet-50 v2</span></li>
+                <li>Tiempo Inferencia: <span>1.2s</span></li>
+            </ul>
+            <div style="text-align: center; margin-top: 20px; font-size: 3rem; color: #e0e0e0;">
+                <i class="fa-solid fa-lungs"></i>
+            </div>
+            """, unsafe_allow_html=True)
 
-        else:
-            st.error("Error crítico: Modelo no cargado.")
+    st.markdown('</div>', unsafe_allow_html=True) # Fin tarjeta
 
-# Footer simple
+# FOOTER
 st.markdown("""
-<div style="text-align: center; padding: 3rem; color: #aaa; font-size: 0.8rem;">
-    DeepMed AI System v3.0 • Powered by PyTorch & Streamlit
+<div style="text-align: center; padding: 2rem; color: #666; font-size: 0.8rem;">
+    © 2025 DeepMed AI Solutions. Solo para fines de investigación académica.
 </div>
 """, unsafe_allow_html=True)

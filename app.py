@@ -154,6 +154,30 @@ body, [data-testid="stAppViewContainer"] {
     font-family: 'Inter', sans-serif;
 }
 
+/* === OCULTAR COMPLETAMENTE EL FILE UPLOADER (CUADRO NEGRO) === */
+[data-testid="stFileUploader"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+[data-testid="stFileUploaderDropzone"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+[data-testid="stFileUploaderLabel"] {
+    display: none !important;
+}
+
+[data-testid="stFileUploaderBrowseButton"] {
+    display: none !important;
+}
+/* ============================================================= */
+
+/* mantengo TODO el resto igual sin tocar nada */
 [data-testid="stMainBlockContainer"] {
     background-color: #E8F4F8 !important;
     background-image: radial-gradient(circle, #000 0.5px, transparent 0.5px) !important;
@@ -296,7 +320,7 @@ input[type="file"] {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* ====== COLUMNA DERECHA (PARA DESPUÉS) ====== */
+/* ====== COLUMNA DERECHA ====== */
 .right-column {
     flex: 1;
     display: flex;
@@ -327,7 +351,6 @@ st.markdown("""
 # ==========================================================
 # 3. LAYOUT DE DOS COLUMNAS
 # ==========================================================
-
 col1, col2 = st.columns([1, 1], gap="large")
 
 with col1:
@@ -339,7 +362,7 @@ with col1:
     </div>
     """, unsafe_allow_html=True)
     
-    # File uploader invisible
+    # File uploader oculto (solo backend)
     uploaded_file = st.file_uploader(
         label="Selecciona tu archivo",
         type=["jpg", "jpeg", "png", "dcm"],
@@ -347,7 +370,7 @@ with col1:
         key="file_uploader"
     )
     
-    # Zona visual de upload punteada
+    # Zona visual de upload punteada (tu diseño)
     st.markdown("""
     <div class="upload-box" onclick="document.querySelector('input[type=file]').click()">
         <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
@@ -379,7 +402,7 @@ with col1:
             st.success("✅ Análisis iniciado...")
 
 with col2:
-    # Aquí irá la columna derecha con resultados (para después)
+    # Aquí irá la columna derecha con resultados
     st.markdown("""
     <div style="text-align: center; padding: 40px; color: #999;">
         <p style="font-size: 14px;">Los resultados aparecerán aquí</p>

@@ -317,28 +317,34 @@ input[type="file"] {
     display: none !important;
 }
 
-/* ====== BOTÓN INICIAR ANÁLISIS ====== */
+/* ====== BOTÓN INICIAR ANÁLISIS (NUEVO DISEÑO) ====== */
 .analyze-btn {
     width: 100%;
-    background: linear-gradient(135deg, #5B8DC4 0%, #2C74B3 100%);
-    color: white;
-    font-size: 16px;
-    font-weight: 700;
-    padding: 14px 20px;
-    border-radius: 12px;
+    padding: 18px 24px; /* MÁS ALTO */
+    font-size: 18px; /* MÁS GRANDE */
+    font-weight: 800;
+
+    color: white !important;
+    background: linear-gradient(90deg, #74A6D4 0%, #5C7FA8 100%); /* AZUL CLARO + OPACO */
+    
     border: none;
+    border-radius: 14px; /* MÁS REDONDO */
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(44, 116, 179, 0.3);
+
+    transition: all 0.25s ease-in-out;
+    box-shadow: 0 4px 10px rgba(100, 140, 180, 0.25);
 }
 
+/* Hover */
 .analyze-btn:hover {
+    background: linear-gradient(90deg, #82B6E6 0%, #6A8EB8 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(44, 116, 179, 0.4);
+    box-shadow: 0 8px 18px rgba(110, 160, 220, 0.35);
 }
 
+/* Click */
 .analyze-btn:active {
-    transform: translateY(0);
+    transform: scale(0.98);
 }
 
 /* ====== IMAGEN SUBIDA ====== */

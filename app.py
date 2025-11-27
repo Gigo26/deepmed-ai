@@ -269,3 +269,17 @@ if analyze:
     </div>
     """, unsafe_allow_html=True)
 
+# ==========================================================
+# 🔵 8. Footer idéntico al HTML
+# ==========================================================
+st.markdown("""
+<br><br>
+<footer style="
+    text-align:center; 
+    padding:1rem; 
+    color:var(--text-light); 
+    font-size:0.9rem;
+">
+    © 2025 DeepMed AI Solutions. Solo para fines de investigación académica.
+</footer>
+""", unsafe_allow_html=True)

@@ -75,103 +75,83 @@ st.markdown("""
         gap: 8px;
     }
 
-    /* ========= UPLOADER CUSTOM ========= */
-    [data-testid="stFileUploader"] {
-        border: 2px dashed #2C74B3;
-        border-radius: 12px;
-        padding: 2.5rem 1rem;
-        background-color: #f0f6ff;
-        text-align: center;
-        margin-bottom: 1rem;
-        transition: 0.3s ease;
-    }
+    /* CONTENEDOR PRINCIPAL DEL UPLOADER */
+.custom-uploader-box {
+    border: 2px dashed #2C74B3;
+    border-radius: 14px;
+    padding: 2.8rem 1rem;
+    background-color: #f0f6ff;
+    text-align: center;
+    position: relative;
+    margin-bottom: 1rem;
+}
 
-    [data-testid="stFileUploader"]:hover {
-        background-color: #e8f2ff;
-    }
+/* ÍCONO DE NUBE */
+.custom-uploader-box i {
+    font-size: 3.8rem;
+    color: #2C74B3;
+    margin-bottom: 1rem;
+}
 
-    /* zona de drop interna */
-    [data-testid="stFileUploader"] section {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
+/* TÍTULO: ARRRASTRA Y SUELTA */
+.custom-upload-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0A2647;
+    margin-bottom: 0.3rem;
+}
 
-    /* Ocultar el contenido original (icono + "Drag and drop file here") */
-    [data-testid="stFileUploader"] section > div:first-child {
-        display: none !important;
-    }
+/* SUBTÍTULO: formatos soportados */
+.custom-upload-subtitle {
+    font-size: 0.9rem;
+    color: #4a6fa1;
+    margin-bottom: 1.3rem;
+}
 
-    /* Ícono de nube */
-    [data-testid="stFileUploader"] section::before {
-        content: "\\f0ee"; /* fa-cloud-arrow-up */
-        font-family: "Font Awesome 6 Free";
-        font-weight: 900;
-        font-size: 3.5rem;
-        color: #2C74B3;
-        display: block;
-        margin-bottom: 1rem;
-    }
+/* BOTÓN "Seleccionar Archivo" */
+.custom-upload-btn {
+    background-color: #ffffff;
+    border: 2px solid #2C74B3;
+    color: #2C74B3;
+    padding: 0.5rem 1.4rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
 
-    /* Texto dentro del recuadro */
-    [data-testid="stFileUploader"] section::after {
-        content: "Arrastra y suelta tu imagen aquí\\ASoporta JPG, PNG, DICOM";
-        white-space: pre-wrap;
-        font-size: 1rem;
-        color: #0A2647;
-        margin-top: 0.3rem;
-        margin-bottom: 1.2rem;
-    }
+.custom-upload-btn:hover {
+    background-color: #2C74B3;
+    color: #ffffff;
+}
 
-    /* Botón "Browse files" -> "Seleccionar Archivo" */
-    [data-testid="stFileUploader"] button {
-        border: 1px solid #2C74B3;
-        background-color: white;
-        color: transparent; /* escondemos texto original */
-        border-radius: 8px;
-        padding: 0.5rem 1.5rem;
-        font-weight: 600;
-        font-size: 0.95rem;
-        position: relative;
-        overflow: hidden;
-    }
+/* OCULTAR INPUT REAL */
+#real-uploader {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    cursor: pointer;
+}
 
-    [data-testid="stFileUploader"] button::after {
-        content: "Seleccionar Archivo";
-        color: #2C74B3;
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+/* BOTÓN "Iniciar Análisis" */
+.start-btn > button {
+    background: #2C74B3 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    font-size: 1.1rem !important;
+    padding: 0.9rem !important;
+    font-weight: 600;
+    border: none;
+}
 
-    [data-testid="stFileUploader"] button:hover::after {
-        color: white;
-    }
-    [data-testid="stFileUploader"] button:hover {
-        background-color: #2C74B3;
-    }
-
-    /* Botón principal */
-    .stButton > button {
-        background-color: #000; /* negro como tu captura */
-        color: white;
-        border: none;
-        padding: 0.8rem 1.5rem;
-        font-size: 1.0rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: 0.3s;
-    }
-    .stButton > button:hover {
-        background-color: #2C74B3;
-    }
+.start-btn > button:hover {
+    background: #0A2647 !important;
+}
 
     /* PLACEHOLDER RESULTADOS */
     .placeholder-container {
@@ -269,17 +249,29 @@ st.markdown("""
 col1, col2 = st.columns([1, 1], gap="medium")
 
 with col1:
-    st.markdown('<div class="card-title"><i class="fa-solid fa-upload"></i> Subir Tomografía (CT)</div>',
-                unsafe_allow_html=True)
+    st.markdown('<div class="card-title"><i class="fa-solid fa-upload"></i> Subir Tomografía (CT)</div>', unsafe_allow_html=True)
 
-    # etiqueta vacía, el texto va en el CSS
-    uploaded_file = st.file_uploader("", type=["jpg", "png", "jpeg"])
+    # Caja punteada completa
+    st.markdown("""
+    <div class="custom-uploader-box">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <div class="custom-upload-title">Arrastra y suelta tu imagen aquí</div>
+        <div class="custom-upload-subtitle">Soporta JPG, JPEG, PNG</div>
+        <label class="custom-upload-btn" for="real-uploader">Seleccionar Archivo</label>
+    </div>
+    """, unsafe_allow_html=True)
 
-    analyze_btn = st.button("Iniciar Análisis")
+    uploaded_file = st.file_uploader("", key="uploader_key", label_visibility="collapsed")
+
+    analyze_btn = st.container()
+    with analyze_btn:
+        st.markdown('<div class="start-btn">', unsafe_allow_html=True)
+        start = st.button("Iniciar Análisis")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     if uploaded_file:
         img = Image.open(uploaded_file)
-        st.image(img, caption="Imagen cargada", width=220)
+        st.image(img, caption="Imagen cargada", width=230)
 
 with col2:
     st.markdown('<div class="card-title"><i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico</div>',

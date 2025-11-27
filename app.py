@@ -75,7 +75,7 @@ def predict_image(model, tensor):
 
 
 # ==========================================================
-# 🔵 2. Configuración visual de la página (Streamlit)
+# 🔵 2. CONFIG PAGINA
 # ==========================================================
 
 st.set_page_config(
@@ -84,14 +84,23 @@ st.set_page_config(
     layout="wide",
 )
 
+# Fondo de la página (color #BADFFF)
+page_bg = """
+<style>
+body {
+    background-color: #BADFFF !important;
+}
+</style>
+"""
 
-# ==========================================================
-# 🔵 3. Inyectando CSS EXACTO de tu HTML
-# ==========================================================
+st.markdown(page_bg, unsafe_allow_html=True)
+
+# ============================
+#        CSS GENERAL
+# ============================
 
 css = """
 <style>
-
 :root {
     --primary-blue: #0A2647;
     --accent-blue: #2C74B3;
@@ -103,127 +112,331 @@ css = """
     --radius: 12px;
 }
 
+/* FONDO GENERAL */
 body {
     background-color: var(--light-blue);
-}
-
-header {
-    background: linear-gradient(90deg, var(--primary-blue) 0%, var(--accent-blue) 100%);
-    color: var(--white);
-    padding: 1.5rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.card {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    min-height: 500px;
-}
-
-.upload-area {
-    border: 2px dashed var(--accent-blue);
-    background-color: #f8fbff;
-    border-radius: var(--radius);
-    padding: 30px;
-    text-align: center;
-    cursor: pointer;
-}
-
-.upload-area:hover {
-    background-color: #eef6ff;
-}
-
-.btn-upload {
-    background-color: var(--white);
-    border: 1px solid var(--accent-blue);
-    color: var(--accent-blue);
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-weight: 600;
-}
-
-.btn-analyze {
-    background: linear-gradient(90deg, var(--accent-blue) 0%, var(--primary-blue) 100%);
-    color: white;
-    border-radius: var(--radius);
-    padding: 14px;
-    font-size: 18px;
-    font-weight: 600;
-    width: 100%;
-    text-align: center;
-    margin-top: 20px;
-}
-
-.result-box {
-    padding: 20px;
-    text-align: center;
-}
-
-.conf-bar {
-    height: 12px;
-    background: linear-gradient(90deg, var(--accent-blue), var(--success-green));
-    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
 }
 
 </style>
 """
-
 st.markdown(css, unsafe_allow_html=True)
 
+# ============================
+#        CSS HEADER
+# ============================
 
+header_css = """
+<style>
+header {
+    width: 100%;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-# ==========================================================
-# 🔵 4. Header idéntico al HTML
-# ==========================================================
+    background: linear-gradient(90deg, #00007A 0%, #6B6BDF 100%);
+    color: white;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-title h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: white;
+}
+
+.header-title .subtitle {
+    margin: 0;
+    margin-top: -3px;
+    font-size: 14px;
+    opacity: 0.85;
+    color: white;
+}
+
+.header-icon {
+    font-size: 35px;
+    color: white;
+}
+</style>
+"""
+st.markdown(header_css, unsafe_allow_html=True)
+
+# ============================
+#        CSS LEFT
+# ============================
+
+left_css = """
+<style>
+
+.upload-container {
+    width: 100%;
+    padding: 10px 5px;
+}
+
+.upload-title {
+    font-size: 20px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-box {
+    margin-top: 15px;
+    background-color: #F4F8FF;
+    border: 2px dashed #2C74B3;
+    border-radius: 15px;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.upload-box:hover {
+    background-color: #EBF3FF;
+}
+
+.upload-icon {
+    font-size: 55px;
+    color: #2C74B3;
+}
+
+.upload-main-text {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 10px;
+    color: #000;
+}
+
+.upload-subtext {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+.upload-btn {
+    background-color: white;
+    border: 2px solid #2C74B3;
+    color: #2C74B3;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.upload-btn:hover {
+    background-color: #f0f6ff;
+}
+
+.analyze-btn {
+    width: 100%;
+    margin-top: 20px;
+    background-color: #AFA0F0;
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 14px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.analyze-btn:hover {
+    filter: brightness(0.95);
+}
+
+.hidden-upload {
+    display: none;
+}
+
+</style>
+"""
+st.markdown(left_css, unsafe_allow_html=True)
+
+# ============================
+#          CSS RIGHT
+# ============================
+
+right_css = """
+<style>
+
+.result-card {
+    width: 100%;
+    background-color: white;
+    border-radius: 15px;
+    padding: 25px 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    min-height: 520px;
+}
+
+.result-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0A2647;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.result-line {
+    width: 100%;
+    height: 1px;
+    background-color: #E0E0E0;
+    margin: 12px 0 25px 0;
+}
+
+.result-placeholder {
+    margin-top: 40px;
+    text-align: center;
+    color: #7A7A7A;
+}
+
+.result-icon {
+    font-size: 70px;
+    color: #CFCFCF;   /* gris claro */
+    margin-bottom: 10px;
+}
+
+.placeholder-text {
+    font-size: 16px;
+    color: #777;
+    line-height: 1.4;
+}
+
+</style>
+"""
+st.markdown(right_css, unsafe_allow_html=True)
+
+# ============================
+#          CSS FOOTER
+# ============================
+
+footer_css = """
+<style>
+.app-footer {
+    width: 100%;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 30px;
+    font-size: 13px;
+    color: #666;
+}
+</style>
+"""
+st.markdown(footer_css, unsafe_allow_html=True)
+
+# ============================
+#          HEADER
+# ============================
 
 st.markdown("""
 <header>
-    <div style="display:flex; align-items:center; gap:15px;">
-        <i class="fa-solid fa-lungs" style="font-size:32px;"></i>
-        <div>
-            <h1 style="margin:0;">DeepMed AI</h1>
-            <div style="opacity:0.9;">Lung Cancer Detection System v3.0</div>
+    <div class="header-left">
+        <i class="fa-solid fa-lungs" style="font-size:35px; color:white;"></i>
+        <div class="header-title">
+            <h1>DEEPMED AI</h1>
+            <div class="subtitle">Lung Cancer Detection System</div>
         </div>
     </div>
 
-    <i class="fa-solid fa-user-doctor" style="font-size:28px;"></i>
+    <i class="fa-solid fa-user-doctor header-icon"></i>
 </header>
 """, unsafe_allow_html=True)
 
 
-
-# ==========================================================
-# 🔵 5. Layout principal (dos tarjetas)
-# ==========================================================
+# =============================
+#           LAYOUT  
+# =============================
 
 col1, col2 = st.columns([1, 1])
 
 # ==================== LEFT CARD =======================
 with col1:
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<h3><i class='fa-solid fa-upload'></i> Subir Tomografía (CT)</h3><hr>", unsafe_allow_html=True)
+    st.markdown("""
+    <div class="upload-container">
 
-    uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
+        <!-- Título -->
+        <div class="upload-title">
+            <i class="fa-solid fa-upload"></i>
+            SUBIR TOMOGRAFÍA (CT)
+        </div>
 
+        <!-- Caja punteada -->
+        <div class="upload-box" onclick="document.getElementById('file-input').click();">
+
+            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+
+            <div class="upload-main-text">
+                Arrastra y suelta tu imagen aquí
+            </div>
+
+            <div class="upload-subtext">
+                Soporta JPG, JPEG, PNG
+            </div>
+
+            <div class="upload-btn">
+                Seleccionar Archivo
+            </div>
+        </div>
+
+        <!-- Botón analizar -->
+        <div id="analyzeBtn" class="analyze-btn">
+            Iniciar Análisis
+        </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    # file uploader invisible
+    uploaded_file = st.file_uploader(
+        "subida",
+        type=["jpg", "jpeg", "png"],
+        label_visibility="collapsed",
+        key="file-input"
+    )
+
+    # Previsualización
     if uploaded_file:
-        st.image(uploaded_file, caption="Previsualización", use_column_width=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.image(uploaded_file, use_column_width=True)
 
 # ==================== RIGHT CARD ======================
 with col2:
-    st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<h3><i class='fa-solid fa-file-medical-alt'></i> Resultados del Diagnóstico</h3><hr>", unsafe_allow_html=True)
+    st.markdown("""
+    <div class="result-card">
 
-    result_box = st.empty()
+        <!-- Título -->
+        <div class="result-title">
+            <i class="fa-solid fa-file-medical"></i>
+            Resultados del Diagnóstico
+        </div>
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        <div class="result-line"></div>
 
+        <!-- Placeholder inicial -->
+        <div class="result-placeholder">
+            <div class="result-icon">
+                <i class="fa-solid fa-microscope"></i>
+            </div>
+
+            <div class="placeholder-text">
+                Sube una imagen y presiona "Iniciar Análisis" para ver los resultados de la IA.
+            </div>
+        </div>
+
+    </div>
+    """, unsafe_allow_html=True)
 
 # ==========================================================
 # 🔵 6. Botón de análisis
@@ -269,17 +482,11 @@ if analyze:
     </div>
     """, unsafe_allow_html=True)
 
-# ==========================================================
-# 🔵 8. Footer idéntico al HTML
-# ==========================================================
+# ==================================
+#             FOOTER
+# ==================================
 st.markdown("""
-<br><br>
-<footer style="
-    text-align:center; 
-    padding:1rem; 
-    color:var(--text-light); 
-    font-size:0.9rem;
-">
+<div class="app-footer">
     © 2025 DeepMed AI Solutions. Solo para fines de investigación académica.
-</footer>
+</div>
 """, unsafe_allow_html=True)

@@ -152,6 +152,39 @@ body, [data-testid="stAppViewContainer"] {
     box-shadow: 0 4px 10px rgba(80, 100, 130, 0.3);
 }
 
+/* ⚠️ Esconder por completo el contenedor visible del file_uploader */
+[data-testid="stFileUploader"] {
+    visibility: hidden !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Elimina dropzone gris */
+[data-testid="stFileUploaderDropzone"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    padding: 0 !important;
+}
+
+/* Elimina el texto "drag & drop" */
+[data-testid="stFileUploaderInstructions"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+}
+
+/* Elimina la etiqueta invisible que deja espacio */
+[data-testid="stFileUploaderLabel"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
 .analyze-btn:hover {
     background: linear-gradient(90deg, #88B4DA 0%, #6A849C 100%);
     transform: translateY(-2px);

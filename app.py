@@ -137,7 +137,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================================
-# 2. CSS COMPLETO Y FUNCIONAL
+# 2. CSS CON FONDO PUNTEADO Y DISEÑO COMPLETO
 # ==========================================================
 st.markdown("""
 <style>
@@ -147,84 +147,104 @@ st.markdown("""
     box-sizing: border-box;
 }
 
-:root {
-    --primary: #0A2647;
-    --accent: #2C74B3;
-    --purple: #7B68EE;
-    --light-bg: #F4F8FF;
-    --light-hover: #EBF3FF;
+body, [data-testid="stAppViewContainer"] {
+    background-color: #E8F4F8 !important;
+    background-image: radial-gradient(circle, #000 0.5px, transparent 0.5px) !important;
+    background-size: 20px 20px !important;
+    font-family: 'Inter', sans-serif;
 }
 
-body {
-    font-family: 'Inter', sans-serif;
+[data-testid="stMainBlockContainer"] {
+    background-color: #E8F4F8 !important;
+    background-image: radial-gradient(circle, #000 0.5px, transparent 0.5px) !important;
+    background-size: 20px 20px !important;
+}
+
+/* ====== CONTENEDOR PRINCIPAL ====== */
+.main-container {
+    display: flex;
+    gap: 40px;
+    padding: 30px;
+}
+
+/* ====== COLUMNA IZQUIERDA ====== */
+.left-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ====== TÍTULO ====== */
 .upload-title {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 900;
-    color: var(--primary);
+    color: #0A2647;
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 20px;
-    letter-spacing: 0.3px;
+    margin-bottom: 25px;
+    letter-spacing: 0.5px;
 }
 
 .upload-title i {
-    font-size: 26px;
-    color: var(--primary);
+    font-size: 28px;
+    color: #0A2647;
 }
 
-/* ====== ZONA DE UPLOAD ====== */
-.upload-container {
-    margin-bottom: 20px;
-}
-
+/* ====== ZONA DE UPLOAD PUNTEADA ====== */
 .upload-box {
-    padding: 50px 30px;
-    border: 2px dashed var(--accent);
+    padding: 60px 40px;
+    border: 3px dashed #2C74B3;
     border-radius: 16px;
-    background-color: var(--light-bg);
+    background-color: #D4E8F0;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
+    margin-bottom: 20px;
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .upload-box:hover {
-    background-color: var(--light-hover);
-    border-color: var(--purple);
+    background-color: #C5E0EB;
+    border-color: #1E5A96;
+    transform: translateY(-3px);
 }
 
-/* Ícono de nube */
-.upload-icon {
-    font-size: 64px;
-    color: var(--accent);
-    margin-bottom: 15px;
+/* ====== ÍCONO DE NUBE ====== */
+.cloud-icon {
+    font-size: 80px;
+    color: #2C74B3;
+    margin-bottom: 20px;
     display: block;
 }
 
-/* Texto principal */
+/* ====== TEXTO PRINCIPAL ====== */
 .upload-main-text {
     font-size: 18px;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 5px;
+    font-weight: 800;
+    color: #000;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
 }
 
-/* Texto secundario */
+/* ====== TEXTO SECUNDARIO ====== */
 .upload-subtext {
     font-size: 13px;
     color: #666;
-    margin-bottom: 18px;
+    margin-bottom: 25px;
+    font-weight: 500;
 }
 
-/* Botón de seleccionar archivo */
+/* ====== BOTÓN SELECCIONAR ARCHIVO ====== */
 .upload-btn-visible {
     background-color: white;
-    border: 2px solid var(--accent);
-    color: var(--accent);
-    padding: 10px 24px;
+    border: 2px solid #2C74B3;
+    color: #2C74B3;
+    padding: 11px 32px;
     border-radius: 8px;
     font-weight: 700;
     font-size: 14px;
@@ -234,19 +254,20 @@ body {
 }
 
 .upload-btn-visible:hover {
-    background-color: var(--light-bg);
+    background-color: #F0F7FF;
+    border-color: #1E5A96;
     transform: translateY(-2px);
 }
 
-/* Ocultar input file real */
+/* ====== OCULTAR INPUT FILE ====== */
 input[type="file"] {
     display: none !important;
 }
 
-/* ====== BOTÓN ANÁLISIS ====== */
+/* ====== BOTÓN INICIAR ANÁLISIS ====== */
 .analyze-btn {
     width: 100%;
-    background: linear-gradient(135deg, var(--purple) 0%, #6A5ACD 100%);
+    background: linear-gradient(135deg, #5B8DC4 0%, #2C74B3 100%);
     color: white;
     font-size: 16px;
     font-weight: 700;
@@ -255,12 +276,12 @@ input[type="file"] {
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(123, 104, 238, 0.3);
+    box-shadow: 0 4px 12px rgba(44, 116, 179, 0.3);
 }
 
 .analyze-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(123, 104, 238, 0.4);
+    box-shadow: 0 6px 16px rgba(44, 116, 179, 0.4);
 }
 
 .analyze-btn:active {
@@ -273,6 +294,14 @@ input[type="file"] {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ====== COLUMNA DERECHA (PARA DESPUÉS) ====== */
+.right-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
 </style>
@@ -296,58 +325,63 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================================
-# 3. LAYOUT PRINCIPAL
+# 3. LAYOUT DE DOS COLUMNAS
 # ==========================================================
 
-# Título principal
-st.markdown("""
-<div class="upload-title">
-    <i class="fa-solid fa-cloud-arrow-up"></i>
-    Subir Tomografía (CT)
-</div>
-""", unsafe_allow_html=True)
+col1, col2 = st.columns([1, 1], gap="large")
 
-# Contenedor de upload
-st.markdown('<div class="upload-container">', unsafe_allow_html=True)
-
-# File uploader (invisible)
-uploaded_file = st.file_uploader(
-    label="Selecciona tu archivo",
-    type=["jpg", "jpeg", "png", "dcm"],
-    label_visibility="collapsed"
-)
-
-# Zona visual de upload
-st.markdown("""
-<div class="upload-box" onclick="document.querySelector('input[type=file]').click()">
-    <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-    <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
-    <div class="upload-subtext">Soporta JPG, PNG, DICOM</div>
-    <div class="upload-btn-visible">Seleccionar Archivo</div>
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Mostrar imagen si se subió
-if uploaded_file is not None:
-    st.markdown('<div class="image-preview">', unsafe_allow_html=True)
-    st.image(uploaded_file, use_column_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# Botón de análisis
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
+with col1:
+    # Título con icono
+    st.markdown("""
+    <div class="upload-title">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <span style="color: #0A2647; font-weight: 900;">Subir Tomografía (CT)</span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # File uploader invisible
+    uploaded_file = st.file_uploader(
+        label="Selecciona tu archivo",
+        type=["jpg", "jpeg", "png", "dcm"],
+        label_visibility="collapsed",
+        key="file_uploader"
+    )
+    
+    # Zona visual de upload punteada
+    st.markdown("""
+    <div class="upload-box" onclick="document.querySelector('input[type=file]').click()">
+        <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
+        <div class="upload-main-text">Arrastra y suelta una imagen aquí</div>
+        <div class="upload-subtext">Soporta JPEG, JPG, PNG</div>
+        <div class="upload-btn-visible">Seleccionar Archivo</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Mostrar imagen si se subió
+    if uploaded_file is not None:
+        st.markdown('<div class="image-preview">', unsafe_allow_html=True)
+        st.image(uploaded_file, use_column_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Botón Iniciar Análisis
+    st.markdown('<br>', unsafe_allow_html=True)
     analyze_clicked = st.button(
         "Iniciar Análisis",
         key="analyze_btn",
         use_container_width=True
     )
+    
+    # Validación
+    if analyze_clicked:
+        if uploaded_file is None:
+            st.error("⚠️ Por favor, sube una imagen primero")
+        else:
+            st.success("✅ Análisis iniciado...")
 
-# Feedback cuando se hace clic
-if analyze_clicked:
-    if uploaded_file is None:
-        st.error("⚠️ Por favor, sube una imagen primero")
-    else:
-        st.success("✅ Análisis iniciado...")
-        st.info("Procesando imagen con IA...")
+with col2:
+    # Aquí irá la columna derecha con resultados (para después)
+    st.markdown("""
+    <div style="text-align: center; padding: 40px; color: #999;">
+        <p style="font-size: 14px;">Los resultados aparecerán aquí</p>
+    </div>
+    """, unsafe_allow_html=True)

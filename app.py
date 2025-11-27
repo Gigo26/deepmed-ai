@@ -286,47 +286,50 @@ with col1:
 
     # Contenedor punteado completo con botón dentro
     st.markdown("""
-    <div id="dropzone" style="
-        border: 2px dashed #2C74B3;
-        border-radius: 14px;
-        padding: 55px 20px;
-        background-color:#f8fbff;
-        text-align:center;
-        margin-bottom:25px;
+<div id="dropzone" style="
+    border: 2px dashed #2C74B3;
+    border-radius: 14px;
+    padding: 55px 20px;
+    background-color:#f8fbff;
+    text-align:center;
+    margin-bottom:25px;
+">
+
+    <i class="fa-solid fa-cloud-arrow-up" style="font-size:4rem; color:#2C74B3;"></i>
+
+    <h4 style="margin-top:15px; font-weight:700; color:#0A2647;">
+        Arrastra y suelta tu imagen aquí
+    </h4>
+
+    <p style="color:#777; font-size:0.9rem; margin-top:5px;">
+        Soporta JPG, PNG, DICOM
+    </p>
+
+    <!-- BOTÓN PERSONALIZADO -->
+    <button id="customUploadBtn" style="
+        margin-top:15px;
+        background-color:white;
+        color:#2C74B3;
+        border:1.6px solid #2C74B3;
+        padding:8px 22px;
+        font-size:0.95rem;
+        border-radius:8px;
+        cursor:pointer;
     ">
-        <i class="fa-solid fa-cloud-arrow-up" style="font-size:4rem; color:#2C74B3;"></i>
-        <h4 style="margin-top:15px; font-weight:700; color:#0A2647;">
-            Arrastra y suelta tu imagen aquí
-        </h4>
-        <p style="color:#777; font-size:0.9rem; margin-top:5px;">
-            Soporta JPG, PNG, DICOM
-        </p>
+        Seleccionar Archivo
+    </button>
 
-        <button id="customUploadBtn" style="
-            margin-top:15px;
-            background-color:white;
-            color:#2C74B3;
-            border:1.6px solid #2C74B3;
-            padding:8px 22px;
-            font-size:0.95rem;
-            border-radius:8px;
-            cursor:pointer;
-        ">
-            Seleccionar Archivo
-        </button>
-    </div>
+</div>
 
-    <script>
-    // Capturar el botón y activar el uploader oculto
-    const customBtn = document.getElementById('customUploadBtn');
-    const fileInput = window.parent.document.querySelector('input[type="file"]');
-
-    if (customBtn && fileInput) {
-        customBtn.addEventListener('click', () => fileInput.click());
-    }
-    </script>
-    """, unsafe_allow_html=True)
-
+<script>
+const customBtn = document.getElementById('customUploadBtn');
+const fileInput = window.parent.document.querySelector('input[type="file"]');
+if (customBtn && fileInput) {
+    customBtn.addEventListener('click', () => fileInput.click());
+}
+</script>
+""", unsafe_allow_html=True)
+    
     # UPLOADER REAL (oculto)
     uploaded_file = st.file_uploader("", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
 

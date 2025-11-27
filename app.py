@@ -25,31 +25,26 @@ st.markdown("""
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-    /* --- VARIABLES --- */
     :root {
         --primary-blue: #0A2647;
         --header-bg: linear-gradient(90deg, #0f3460 0%, #16213e 100%);
-        --card-bg: #ffffff;
         --bg-pattern: #E8F1F5;
         --text-color: #333;
         --accent-blue: #2C74B3;
     }
 
-    /* --- GENERAL --- */
     * { font-family: 'Inter', sans-serif; }
-    
-    /* Fondo con patrón de puntos */
+
     .stApp {
         background-color: var(--bg-pattern);
         background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
         background-size: 20px 20px;
     }
 
-    /* Ocultar header nativo de Streamlit */
     header[data-testid="stHeader"] { visibility: hidden; }
     .block-container { padding-top: 0rem !important; padding-bottom: 2rem !important; max-width: 1200px; }
 
-    /* --- HEADER PERSONALIZADO --- */
+    /* HEADER */
     .custom-header {
         background: var(--header-bg);
         padding: 1rem 2rem;
@@ -59,32 +54,16 @@ st.markdown("""
         color: white;
         margin-bottom: 2rem;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin-left: -5rem; /* Hack para expandir a full width */
+        margin-left: -5rem;
         margin-right: -5rem;
         padding-left: 5rem;
         padding-right: 5rem;
     }
-    
+
     .logo-section { display: flex; align-items: center; gap: 10px; }
     .logo-icon { font-size: 2rem; }
-    .logo-text h1 { margin: 0; font-size: 1.5rem; font-weight: 700; color: white; line-height: 1.2; }
-    .logo-text p { margin: 0; font-size: 0.8rem; opacity: 0.8; font-weight: 400; }
-
-    /* --- TARJETAS (CARDS) --- */
-    .css-1r6slb0, .css-12w0qpk { /* Selectores de columnas de Streamlit */
-        background-color: transparent;
-    }
-    
-    .custom-card {
-        background: white;
-        border-radius: 12px;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        height: 600px; /* Altura fija para que se vean iguales */
-        position: relative;
-        display: flex;
-        flex-direction: column;
-    }
+    .logo-text h1 { margin: 0; font-size: 1.5rem; font-weight: 700; }
+    .logo-text p { margin: 0; font-size: 0.8rem; opacity: 0.8; }
 
     .card-title {
         font-size: 1.1rem;
@@ -96,8 +75,7 @@ st.markdown("""
         gap: 8px;
     }
 
-    /* --- ESTILO DEL UPLOADER (EL BORDE PUNTEADO) --- */
-    /* Esto disfraza el uploader nativo para que parezca el de tu imagen */
+    /* UPLOADER */
     [data-testid="stFileUploader"] {
         border: 2px dashed #2C74B3;
         border-radius: 12px;
@@ -106,13 +84,7 @@ st.markdown("""
         text-align: center;
         margin-bottom: 1rem;
     }
-    
-    /* Texto "Drag and drop" nativo */
-    [data-testid="stFileUploader"] section > div {
-        color: #333;
-    }
 
-    /* Botón "Browse files" nativo estilizado */
     [data-testid="stFileUploader"] button {
         border: 1px solid #2C74B3;
         color: #2C74B3;
@@ -123,9 +95,8 @@ st.markdown("""
         margin-top: 10px;
     }
 
-    /* --- BOTÓN GRANDE (INICIAR ANÁLISIS) --- */
     .stButton > button {
-        background-color: #7895B2; /* Color gris azulado de tu imagen */
+        background-color: #7895B2;
         color: white;
         border: none;
         width: 100%;
@@ -136,16 +107,16 @@ st.markdown("""
         transition: 0.3s;
     }
     .stButton > button:hover {
-        background-color: #2C74B3; /* Azul más fuerte al pasar mouse */
+        background-color: #2C74B3;
     }
 
-    /* --- RESULTADOS PLACEHOLDER --- */
+    /* PLACEHOLDER RESULTADOS */
     .placeholder-container {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100%;
+        height: 300px;
         color: #888;
         text-align: center;
         margin-top: 2rem;
@@ -156,11 +127,10 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    /* --- CLASES DE RESULTADO --- */
-    .result-box { text-align: center; animation: fadeIn 0.5s; margin-top: 2rem; }
+    .result-box { text-align: center; animation: fadeIn 0.5s; margin-top: 1rem; }
     .status-positive { color: #d93025; font-size: 2rem; font-weight: 800; }
     .status-negative { color: #28a745; font-size: 2rem; font-weight: 800; }
-    
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -201,22 +171,22 @@ def preprocess_image(image):
     image = image.convert("RGB")
     image = image.resize((224, 224))
     transform = transforms.Compose([transforms.ToTensor()])
-    tensor = transform(image).unsqueeze(0)
-    return tensor
+    return transform(image).unsqueeze(0)
 
 def predict_image(model, tensor):
     categorias = ["Bengin cases", "Malignant cases", "Normal cases"]
     with torch.no_grad():
         salida = model(tensor)
         probabilidades = F.softmax(salida, dim=1).cpu().numpy()[0]
-    clase_idx = np.argmax(probabilidades)
-    return categorias[clase_idx], probabilidades[clase_idx] * 100, probabilidades
+    idx = np.argmax(probabilidades)
+    return categorias[idx], probabilidades[idx] * 100, probabilidades
 
 model = load_model()
 
 # ============================
-#      HEADER (HTML PURO)
+#      HEADER
 # ============================
+
 st.markdown("""
 <div class="custom-header">
     <div class="logo-section">
@@ -233,100 +203,74 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================
-#      LAYOUT PRINCIPAL
+#      LAYOUT SIN TARJETAS
 # ============================
 
 col1, col2 = st.columns([1, 1], gap="medium")
 
-# --- COLUMNA 1: SUBIDA (IZQUIERDA) ---
+# -------- IZQUIERDA --------
 with col1:
-    # Inicio Tarjeta
-    st.markdown('<div class="custom-card">', unsafe_allow_html=True)
-    
-    # Título Tarjeta
-    st.markdown('<div class="card-title"><i class="fa-solid fa-upload"></i> Subir Tomografía (CT)</div>', unsafe_allow_html=True)
 
-    # Nota: No podemos poner el icono de nube DENTRO del uploader nativo fácilmente sin romper Streamlit.
-    # Pero con el CSS de arriba, el borde ya es punteado y azul.
-    
-    # Uploader
+    st.markdown('<div class="card-title"><i class="fa-solid fa-upload"></i> Subir Tomografía (CT)</div>', 
+                unsafe_allow_html=True)
+
     uploaded_file = st.file_uploader("Soporta JPG, PNG, DICOM", type=["jpg", "png", "jpeg"])
-    
-    # Espaciador
-    st.markdown('<div style="flex-grow: 1;"></div>', unsafe_allow_html=True)
-    
-    # Botón de acción
+
     analyze_btn = st.button("Iniciar Análisis")
 
     if uploaded_file:
-         image = Image.open(uploaded_file)
-         # Mostramos una miniatura pequeña para que no rompa el diseño
-         st.image(image, caption="Imagen cargada", width=200)
-
-    st.markdown('</div>', unsafe_allow_html=True) # Fin Tarjeta
+        img = Image.open(uploaded_file)
+        st.image(img, caption="Imagen cargada", width=220)
 
 
-# --- COLUMNA 2: RESULTADOS (DERECHA) ---
+# -------- DERECHA --------
 with col2:
-    # Inicio Tarjeta
-    st.markdown('<div class="custom-card">', unsafe_allow_html=True)
-    
-    # Título Tarjeta
-    st.markdown('<div class="card-title"><i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="card-title"><i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico</div>', 
+                unsafe_allow_html=True)
 
     if not uploaded_file or not analyze_btn:
-        # ESTADO "PLACEHOLDER" (Como en tu imagen)
         st.markdown("""
         <div class="placeholder-container">
             <i class="fa-solid fa-microscope placeholder-icon"></i>
-            <p>Sube una imagen y presiona "Iniciar Análisis" para ver los<br>resultados de la IA.</p>
+            <p>Sube una imagen y presiona "Iniciar Análisis"<br>para ver los resultados.</p>
         </div>
         """, unsafe_allow_html=True)
-    
+
     else:
-        # ESTADO CON RESULTADOS
-        if model is not None:
-            with st.spinner('Procesando imagen...'):
-                time.sleep(1) # Simular carga para efecto visual
-                tensor = preprocess_image(image)
+        if model:
+            with st.spinner("Procesando imagen..."):
+                time.sleep(1)
+                tensor = preprocess_image(img)
                 clase, confianza, probs = predict_image(model, tensor)
-            
-            # Definir estilos según resultado
+
             if clase == "Malignant cases":
-                status_html = f'<div class="status-positive"><i class="fa-solid fa-circle-exclamation"></i> MALIGNO</div>'
+                estado = '<div class="status-positive"><i class="fa-solid fa-circle-exclamation"></i> MALIGNO</div>'
                 msg = "Se detectaron anomalías preocupantes."
             elif clase == "Bengin cases":
-                status_html = f'<div class="status-negative" style="color:#f0ad4e;"><i class="fa-solid fa-notes-medical"></i> BENIGNO</div>'
+                estado = '<div class="status-negative" style="color:#f0ad4e;"><i class="fa-solid fa-notes-medical"></i> BENIGNO</div>'
                 msg = "Tumoración benigna detectada."
             else:
-                status_html = f'<div class="status-negative"><i class="fa-solid fa-check-circle"></i> NORMAL</div>'
+                estado = '<div class="status-negative"><i class="fa-solid fa-check-circle"></i> NORMAL</div>'
                 msg = "No se detectaron nódulos malignos."
 
             st.markdown(f"""
             <div class="result-box">
-                {status_html}
-                <p style="color:#666; margin-top:10px;">{msg}</p>
-                <h3 style="color:#0A2647; margin-top: 20px;">Confianza: {confianza:.2f}%</h3>
+                {estado}
+                <p style="color:#666;">{msg}</p>
+                <h3 style="color:#0A2647;">Confianza: {confianza:.2f}%</h3>
             </div>
             """, unsafe_allow_html=True)
-            
-            st.progress(int(confianza) / 100)
-            
-            st.markdown("""
-            <div style="margin-top: 30px; text-align: left; background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                <small><strong>Detalle de probabilidades:</strong></small>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            col_res1, col_res2, col_res3 = st.columns(3)
-            col_res1.metric("Benigno", f"{probs[0]*100:.1f}%")
-            col_res2.metric("Maligno", f"{probs[1]*100:.1f}%")
-            col_res3.metric("Normal", f"{probs[2]*100:.1f}%")
+
+            st.progress(int(confianza)/100)
+
+            colA, colB, colC = st.columns(3)
+            colA.metric("Benigno", f"{probs[0]*100:.1f}%")
+            colB.metric("Maligno", f"{probs[1]*100:.1f}%")
+            colC.metric("Normal", f"{probs[2]*100:.1f}%")
 
         else:
             st.error("Error: Modelo no cargado.")
-
-    st.markdown('</div>', unsafe_allow_html=True) # Fin Tarjeta
 
 # FOOTER
 st.markdown("""

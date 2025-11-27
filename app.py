@@ -261,7 +261,7 @@ st.markdown(hide_uploader_css, unsafe_allow_html=True)
 col1, col2 = st.columns([1, 1], gap="large")
 
 # -------------------------------------------------------
-#  🩻   COLUMNA IZQUIERDA – SUBIR TOMOGRAFÍA (UI limpia)
+#  🩻   COLUMNA IZQUIERDA – SUBIR TOMOGRAFÍA
 # -------------------------------------------------------
 with col1:
 
@@ -272,15 +272,27 @@ with col1:
     <hr style="margin-top:-5px; margin-bottom:20px; border-color:#d0d7e1;">
     """, unsafe_allow_html=True)
 
-    # CUADRO PUNTEADO
+    # Ocultar uploader original de Streamlit
     st.markdown("""
-    <div style="
+    <style>
+    [data-testid="stFileUploader"] {
+        opacity: 0 !important;
+        height: 0px !important;
+        position: absolute !important;
+        z-index: -10 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Contenedor punteado completo con botón dentro
+    st.markdown("""
+    <div id="dropzone" style="
         border: 2px dashed #2C74B3;
         border-radius: 14px;
-        padding: 50px 20px;
+        padding: 55px 20px;
         background-color:#f8fbff;
         text-align:center;
-        margin-bottom:22px;
+        margin-bottom:25px;
     ">
         <i class="fa-solid fa-cloud-arrow-up" style="font-size:4rem; color:#2C74B3;"></i>
         <h4 style="margin-top:15px; font-weight:700; color:#0A2647;">
@@ -289,30 +301,43 @@ with col1:
         <p style="color:#777; font-size:0.9rem; margin-top:5px;">
             Soporta JPG, PNG, DICOM
         </p>
+
+        <button id="customUploadBtn" style="
+            margin-top:15px;
+            background-color:white;
+            color:#2C74B3;
+            border:1.6px solid #2C74B3;
+            padding:8px 22px;
+            font-size:0.95rem;
+            border-radius:8px;
+            cursor:pointer;
+        ">
+            Seleccionar Archivo
+        </button>
     </div>
+
+    <script>
+    // Capturar el botón y activar el uploader oculto
+    const customBtn = document.getElementById('customUploadBtn');
+    const fileInput = window.parent.document.querySelector('input[type="file"]');
+
+    if (customBtn && fileInput) {
+        customBtn.addEventListener('click', () => fileInput.click());
+    }
+    </script>
     """, unsafe_allow_html=True)
 
-    # UPLOADER OCULTO
+    # UPLOADER REAL (oculto)
     uploaded_file = st.file_uploader("", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
 
-    # BOTÓN PERSONALIZADO
-    select_btn = st.button("Seleccionar Archivo", use_container_width=True)
-
-    # Cuando el usuario presiona el botón → activamos el uploader real
-    if select_btn:
-        st.session_state["trigger_upload"] = True
-
-    if "trigger_upload" in st.session_state and st.session_state["trigger_upload"]:
-        uploaded_file = st.file_uploader("", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
-        st.session_state["trigger_upload"] = False
-
-    # Vista previa
+    # Mostrar vista previa
     if uploaded_file:
         image = Image.open(uploaded_file)
         st.image(image, caption="Vista previa de la tomografía", use_column_width=True)
 
-    # BOTÓN ANALIZAR
+    # Botón analizar
     analizar = st.button("Iniciar Análisis", use_container_width=True)
+
 
 
 # -------------------------------------------------------

@@ -7,7 +7,6 @@ from PIL import Image
 import numpy as np
 
 
-
 # ==========================================================
 # 1. MODELO CNN (SE MANTIENE)
 # ==========================================================
@@ -39,18 +38,9 @@ class LungCNN(nn.Module):
         return self.net(x)
 
 
-def load_model(path="modelo_cnn_completo.pt"):
-    try:
-        model = torch.load(path, map_location=torch.device("cpu"))
-        model.eval()
-        return model
-    except:
-        return None
-
-
 
 # ==========================================================
-# 2. CONFIG PÁGINA (FONDO CELESTE CON PUNTITOS)
+# 2. CONFIG PÁGINA + FUENTES
 # ==========================================================
 
 st.set_page_config(
@@ -59,9 +49,17 @@ st.set_page_config(
     layout="wide"
 )
 
+# Google Fonts + FontAwesome (importante)
+st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+""", unsafe_allow_html=True)
+
+# Fondo celeste con puntos
 st.markdown("""
 <style>
-body {
+/* Streamlit usa [data-testid="stAppViewContainer"] como body */
+[data-testid="stAppViewContainer"] {
     background-color: #BADFFF !important;
     background-image: radial-gradient(#000 0.5px, transparent 0.5px);
     background-size: 12px 12px;
@@ -86,7 +84,6 @@ header {
     justify-content: space-between;
     align-items: center;
 
-    /* De izquierda (#00007A) a derecha (#6B6BDF) */
     background: linear-gradient(90deg, #00007A 0%, #6B6BDF 100%);
     color: white;
 
@@ -94,7 +91,6 @@ header {
     box-shadow: 0 4px 20px rgba(0,0,0,0.20);
 }
 
-/* IZQUIERDA (ICONO + TÍTULO) */
 .header-left {
     display: flex;
     align-items: center;
@@ -105,20 +101,18 @@ header {
     margin: 0;
     font-size: 30px;
     font-weight: 900;
-    letter-spacing: 1px;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .header-title .subtitle {
-    margin: 0;
-    margin-top: -3px;
     font-size: 14px;
     opacity: 0.85;
+    margin-top: -3px;
 }
 
-/* ICONO DOCTOR DERECHA */
 .header-icon {
-    font-size: 35px;
+    font-size: 36px;
     color: white;
 }
 
@@ -128,13 +122,13 @@ header {
 
 
 # ==========================================================
-# 4. HEADER SOLO (SIN NADA MÁS)
+# 4. HEADER (SOLO ESTO, NADA MÁS)
 # ==========================================================
 
 st.markdown("""
 <header>
     <div class="header-left">
-        <i class="fa-solid fa-lungs" style="font-size:36px; color:white;"></i>
+        <i class="fa-solid fa-lungs" style="font-size:36px;"></i>
         <div class="header-title">
             <h1>DEEPMED AI</h1>
             <div class="subtitle">Lung Cancer Detection System</div>

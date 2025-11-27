@@ -171,7 +171,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================
-#    LÓGICA DEL MODELO (INTACTA)
+#    LÓGICA DEL MODELO
 # ============================
 
 class LungCNN(nn.Module):
@@ -247,60 +247,83 @@ st.markdown("""
 
 col1, col2 = st.columns([1, 1], gap="large")
 
-# --- COLUMNA IZQUIERDA: UPLOAD ---
+# -------------------------------------------------------
+#  🩻   TARJETA IZQUIERDA – SUBIR TOMOGRAFÍA
+# -------------------------------------------------------
 with col1:
-    # Inicio de la tarjeta visual (Hack CSS)
     st.markdown('<div class="custom-card">', unsafe_allow_html=True)
-    
-    st.markdown('<div class="card-header"><i class="fa-solid fa-upload"></i> Subir Tomografía (CT)</div>', unsafe_allow_html=True)
-    
-    uploaded_file = st.file_uploader("Selecciona una imagen médica", type=["jpg", "png", "jpeg"])
-    
+
+    st.markdown(
+        '<div class="card-header"><i class="fa-solid fa-upload"></i> Subir Tomografía (CT)</div>',
+        unsafe_allow_html=True
+    )
+
+    # --- DISEÑO PERSONALIZADO DEL ÁREA DE SUBIDA ---
+    st.markdown("""
+    <div style="
+        border: 2px dashed #2C74B3;
+        border-radius: 12px;
+        padding: 45px 20px;
+        background-color: #f8fbff;
+        text-align: center;
+        margin-bottom: 25px;
+    ">
+        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 4rem; color: #2C74B3; margin-bottom: 15px;"></i>
+        <h4 style="margin: 0; font-weight: 700; color:#0A2647;">Arrastra y suelta tu imagen aquí</h4>
+        <p style="color:#666; font-size: 0.85rem; margin-top:5px;">Soporta JPG, PNG, DICOM</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # File uploader nativo de Streamlit (con label oculto)
+    uploaded_file = st.file_uploader(" ", type=["jpg", "png", "jpeg"], label_visibility="collapsed")
+
+    # Mostrar vista previa si se sube una imagen
     if uploaded_file:
         image = Image.open(uploaded_file)
-        st.image(image, caption="Vista previa de radiografía", use_column_width=True)
-    else:
-        # Espacio vacío visual para mantener altura
-        st.markdown("""
-        <div style="text-align: center; color: #ccc; padding: 40px;">
-            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 4rem; margin-bottom: 10px;"></i>
-            <p>Soporta JPG, PNG y DICOM</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.image(image, caption="Vista previa de la tomografía", use_column_width=True)
 
-    st.markdown('</div>', unsafe_allow_html=True) # Fin tarjeta
+    # --- BOTÓN DE ANÁLISIS ---
+    analyze_btn = st.button("Iniciar Análisis", use_container_width=True)
 
-# --- COLUMNA DERECHA: RESULTADOS ---
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
+# -------------------------------------------------------
+#  ⚕️   TARJETA DERECHA – RESULTADOS
+# -------------------------------------------------------
 with col2:
     st.markdown('<div class="custom-card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-header"><i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico</div>', unsafe_allow_html=True)
 
+    st.markdown(
+        '<div class="card-header"><i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico</div>',
+        unsafe_allow_html=True
+    )
+
+    # Si no hay modelo
     if model is None:
         st.error("Error: No se encontró el archivo 'modelo_cnn_completo.pt'.")
-    
+
+    # Si no hay imagen subida mostrar placeholder
     elif uploaded_file is None:
-        # ESTADO VACÍO (Placeholder)
         st.markdown("""
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; color: #999;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;
+                    height: 330px; color: #999;">
             <i class="fa-solid fa-microscope" style="font-size: 5rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-            <p style="text-align: center;">El análisis aparecerá aquí después de subir una imagen.</p>
+            <p style="text-align: center; font-size: 0.95rem;">
+                Sube una imagen y presiona <b>Iniciar Análisis</b> para ver los resultados de la IA.
+            </p>
         </div>
         """, unsafe_allow_html=True)
-        
+
+    # Si hay imagen cargada → permitir análisis
     else:
-        # BOTÓN DE ANÁLISIS (Simula el botón del diseño)
-        analyze_btn = st.button("Iniciar Análisis Clínico ⚡")
-        
         if analyze_btn:
-            with st.spinner('Analizando tejido pulmonar...'):
-                # Simular tiempo de proceso para efecto visual (opcional)
-                time.sleep(1.5)
+            with st.spinner("Analizando tejido pulmonar..."):
+                time.sleep(1.3)
                 tensor = preprocess_image(image)
                 clase, confianza, probs = predict_image(model, tensor)
-            
-            # --- MOSTRAR RESULTADOS CON DISEÑO ---
-            
-            # Determinar color según resultado
+
+            # Elegir colores según resultado
             if clase == "Malignant cases":
                 badge_class = "badge-danger"
                 icon = "fa-exclamation-triangle"
@@ -312,28 +335,31 @@ with col2:
                 color_text = "#28a745"
                 status_text = "Detección Negativa" if clase == "Normal cases" else "Caso Benigno"
 
-            # Renderizar HTML del resultado
+            # Mostrar resultado principal
             st.markdown(f"""
-            <div style="text-align: center; animation: fadeIn 0.5s;">
+            <div style="text-align: center;">
                 <div class="result-badge {badge_class}">
                     <i class="fa-solid {icon}"></i> {status_text}
                 </div>
-                
-                <h2 class="big-prediction" style="color: {color_text};">{clase}</h2>
+
+                <h2 class="big-prediction" style="color: {color_text};">
+                    {clase}
+                </h2>
                 <p style="color: #666;">Confianza del modelo IA</p>
             </div>
             """, unsafe_allow_html=True)
-            
-            # Barra de progreso personalizada
+
+            # Barra de certeza
             st.markdown(f"""
-            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; 
+                        font-weight: 600; margin-top: 20px;">
                 <span>Certeza</span>
                 <span>{confianza:.1f}%</span>
             </div>
             """, unsafe_allow_html=True)
             st.progress(int(confianza) / 100)
-            
-            # Lista de detalles (Estilo Tabla Médica)
+
+            # Detalles adicionales
             st.markdown(f"""
             <ul class="details-list">
                 <li>Prob. Maligno: <span>{probs[1]*100:.1f}%</span></li>
@@ -342,12 +368,12 @@ with col2:
                 <li>Modelo: <span>DeepResNet-50 v2</span></li>
                 <li>Tiempo Inferencia: <span>1.2s</span></li>
             </ul>
-            <div style="text-align: center; margin-top: 20px; font-size: 3rem; color: #e0e0e0;">
+            <div style="text-align: center; margin-top: 20px; font-size: 3rem; opacity: 0.3;">
                 <i class="fa-solid fa-lungs"></i>
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True) # Fin tarjeta
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # FOOTER
 st.markdown("""

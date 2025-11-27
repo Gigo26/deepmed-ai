@@ -407,13 +407,13 @@ with col1:
     
     # Zona visual de upload punteada (tu diseño)
     st.markdown("""
-    <div class="upload-box" onclick="document.querySelector('input[type=file]').click()">
-        <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
-        <div class="upload-main-text">Arrastra y suelta una imagen aquí</div>
-        <div class="upload-subtext">Soporta JPEG, JPG, PNG</div>
-        <div class="upload-btn-visible">Seleccionar Archivo</div>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="upload-box" onclick="document.querySelector('[data-testid=stFileUploadDropzoneInput]').click()">
+    <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
+    <div class="upload-main-text">Arrastra y suelta una imagen aquí</div>
+    <div class="upload-subtext">Soporta JPEG, JPG, PNG</div>
+    <div class="upload-btn-visible">Seleccionar Archivo</div>
+</div>
+""", unsafe_allow_html=True)
     
     # Mostrar imagen si se subió
     if uploaded_file is not None:

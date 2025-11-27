@@ -217,7 +217,7 @@ with col1:
     # ---- SUBIMOS EL file_uploader (invisible) ----
     uploaded_file = st.file_uploader(
         "Selecciona una imagen",
-        type=["jpg", "jpeg", "png", "dcm"],
+        type=[".jpg", ".jpeg", ".png", ".dcm"],
         label_visibility="collapsed",
         key="ct_input"
     )

@@ -1,15 +1,9 @@
 import streamlit as st
-
 import torch
-
 import torch.nn as nn
-
 import torch.nn.functional as F
-
 from torchvision import transforms
-
 from PIL import Image
-
 import numpy as np
 
 
@@ -17,125 +11,55 @@ import numpy as np
 
 
 # ==========================================================
-
 # 1. MODELO CNN (SE MANTIENE)
-
 # ==========================================================
-
-
-
 class LungCNN(nn.Module):
-
     def __init__(self):
-
         super(LungCNN, self).__init__()
-
         self.net = nn.Sequential(
-
             nn.Conv2d(3, 112, kernel_size=3, padding=1), nn.ReLU(), nn.AvgPool2d(2),
-
-
-
             nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(),
-
             nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
-
-
-
             nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(),
-
             nn.Conv2d(112, 112, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
-
-
-
             nn.Conv2d(112, 56, kernel_size=3, padding=1), nn.ReLU(),
-
             nn.Conv2d(56, 56, kernel_size=3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
-
-
-
             nn.Flatten(),
-
             nn.Dropout(0.2),
-
-
-
             nn.Linear(56 * 14 * 14, 3000), nn.ReLU(),
-
             nn.Linear(3000, 1500), nn.ReLU(),
-
             nn.Linear(1500, 3)
-
         )
 
-
-
     def forward(self, x):
-
         return self.net(x)
-
-
-
-
-
-
-
 # ==========================================================
-
 # 2. CONFIG PÁGINA + FUENTES
-
 # ==========================================================
-
-
-
 st.set_page_config(
-
     page_title="DeepMed AI",
-
     page_icon="🫁",
-
     layout="wide"
-
 )
 
-
-
 # Google Fonts + FontAwesome (importante)
-
 st.markdown("""
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 """, unsafe_allow_html=True)
-
-
 
 # Fondo celeste con puntos
-
 st.markdown("""
-
 <style>
-
 /* Streamlit usa [data-testid="stAppViewContainer"] como body */
-
 [data-testid="stAppViewContainer"] {
-
     background-color: #BADFFF !important;
-
     background-image: radial-gradient(#000 0.5px, transparent 0.5px);
-
     background-size: 12px 12px;
-
     font-family: 'Inter', sans-serif;
-
 }
-
 </style>
-
 """, unsafe_allow_html=True)
-
 # ==========================================================
 # 3. CSS DEL HEADER (CORREGIDO PARA FULL WIDTH)
 # ==========================================================
@@ -208,7 +132,6 @@ st.markdown("""
 # ==========================================================
 # 4. HEADER HTML (CORREGIDO CON ÍCONO VISIBLE)
 # ==========================================================
-
 st.markdown("""
 <div class="custom-header">
     <div class="header-left">

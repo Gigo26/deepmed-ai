@@ -176,30 +176,35 @@ st.markdown(header_css, unsafe_allow_html=True)
 #        CSS LEFT
 # ============================
 
-left_css = """
+upload_css = """
 <style>
 
-.upload-container {
+.upload-card {
+    background-color: white;
+    padding: 20px 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
     width: 100%;
-    padding: 10px 5px;
 }
 
+/* Título */
 .upload-title {
     font-size: 20px;
     font-weight: 800;
     text-transform: uppercase;
-    color: #000;
+    color: #0A2647;
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
+/* Caja punteada */
 .upload-box {
-    margin-top: 15px;
-    background-color: #F4F8FF;
+    margin-top: 20px;
+    padding: 45px 25px;
     border: 2px dashed #2C74B3;
     border-radius: 15px;
-    padding: 40px 20px;
+    background-color: #F4F8FF;
     text-align: center;
 }
 
@@ -207,63 +212,50 @@ left_css = """
     background-color: #EBF3FF;
 }
 
+/* Ícono nube */
 .upload-icon {
-    font-size: 55px;
+    font-size: 58px;
     color: #2C74B3;
 }
 
+/* Texto principal */
 .upload-main-text {
     font-size: 20px;
     font-weight: 700;
-    margin-top: 10px;
+    margin-top: 12px;
     color: #000;
 }
 
+/* Subtexto */
 .upload-subtext {
     font-size: 14px;
     color: #444;
+    margin-top: -5px;
     margin-bottom: 15px;
 }
 
-.upload-btn {
+/* Botón visual de seleccionar archivo */
+.upload-btn-visible {
     background-color: white;
     border: 2px solid #2C74B3;
     color: #2C74B3;
-    padding: 8px 18px;
+    padding: 8px 15px;
     border-radius: 8px;
     font-weight: 700;
-    cursor: pointer;
     display: inline-block;
-}
-
-.upload-btn:hover {
-    background-color: #f0f6ff;
-}
-
-.analyze-btn {
-    width: 100%;
-    margin-top: 20px;
-    background-color: #AFA0F0;
-    color: white;
-    font-size: 18px;
-    font-weight: 700;
-    padding: 14px;
-    border-radius: 12px;
-    text-align: center;
     cursor: pointer;
 }
 
-.analyze-btn:hover {
-    filter: brightness(0.95);
-}
-
-.hidden-upload {
-    display: none;
+/* Oculta el file uploader real */
+input[type="file"] {
+    opacity: 0;
+    position: absolute;
+    top: -100px;
 }
 
 </style>
 """
-st.markdown(left_css, unsafe_allow_html=True)
+st.markdown(upload_css, unsafe_allow_html=True)
 
 # ============================
 #          CSS RIGHT
@@ -364,52 +356,51 @@ col1, col2 = st.columns([1, 1])
 
 # ==================== LEFT CARD =======================
 with col1:
-    st.markdown("""
-    <div class="upload-container">
 
-        <!-- Título -->
+    # CARD contenedor
+    st.markdown("<div class='upload-card'>", unsafe_allow_html=True)
+
+    # Título
+    st.markdown("""
         <div class="upload-title">
             <i class="fa-solid fa-upload"></i>
             SUBIR TOMOGRAFÍA (CT)
         </div>
-
-        <!-- Caja punteada -->
-        <div class="upload-box" onclick="document.getElementById('file-input').click();">
-
-            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
-
-            <div class="upload-main-text">
-                Arrastra y suelta tu imagen aquí
-            </div>
-
-            <div class="upload-subtext">
-                Soporta JPG, JPEG, PNG
-            </div>
-
-            <div class="upload-btn">
-                Seleccionar Archivo
-            </div>
-        </div>
-
-        <!-- Botón analizar -->
-        <div id="analyzeBtn" class="analyze-btn">
-            Iniciar Análisis
-        </div>
-
-    </div>
     """, unsafe_allow_html=True)
 
-    # file uploader invisible
+    # Uploader funcional de Streamlit (invisible)
     uploaded_file = st.file_uploader(
-        "subida",
+        "",
         type=["jpg", "jpeg", "png"],
         label_visibility="collapsed",
-        key="file-input"
+        key="uploader_real"
     )
+
+    # Caja punteada (estética)
+    st.markdown("""
+        <div class="upload-box">
+            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+
+            <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
+
+            <div class="upload-subtext">Soporta JPG, JPEG, PNG</div>
+
+            <div class="upload-btn-visible">Seleccionar Archivo</div>
+        </div>
+    """, unsafe_allow_html=True)
 
     # Previsualización
     if uploaded_file:
-        st.image(uploaded_file, use_column_width=True)
+        st.image(uploaded_file, caption="", use_column_width=True)
+
+    # Botón Iniciar Análisis
+    st.markdown("""
+        <div class="analyze-btn">
+            Iniciar Análisis
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ==================== RIGHT CARD ======================
 with col2:

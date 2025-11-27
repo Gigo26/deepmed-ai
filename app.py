@@ -126,16 +126,14 @@ st.markdown("""
     color: #ffffff;
 }
 
-/* OCULTAR INPUT REAL */
-#real-uploader {
-    opacity: 0;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    cursor: pointer;
+/* OCULTAR COMPLETAMENTE EL UPLOADER ORIGINAL */
+[data-testid="stFileUploader"] {
+    height: 0px !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
 }
 
 /* BOTÓN "Iniciar Análisis" */
@@ -251,24 +249,26 @@ col1, col2 = st.columns([1, 1], gap="medium")
 with col1:
     st.markdown('<div class="card-title"><i class="fa-solid fa-upload"></i> Subir Tomografía (CT)</div>', unsafe_allow_html=True)
 
-    # Caja punteada completa
+    # Caja punteada bonita (tu diseño)
     st.markdown("""
     <div class="custom-uploader-box">
         <i class="fa-solid fa-cloud-arrow-up"></i>
         <div class="custom-upload-title">Arrastra y suelta tu imagen aquí</div>
         <div class="custom-upload-subtitle">Soporta JPG, JPEG, PNG</div>
-        <label class="custom-upload-btn" for="real-uploader">Seleccionar Archivo</label>
+
+        <label for="hidden-uploader" class="custom-upload-btn">
+            Seleccionar Archivo
+        </label>
     </div>
     """, unsafe_allow_html=True)
 
-    uploaded_file = st.file_uploader("", key="uploader_key", label_visibility="collapsed")
+    # ESTE ES EL REAL, PERO INVISIBLE
+    uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"], key="hidden-uploader")
 
-    analyze_btn = st.container()
-    with analyze_btn:
-        st.markdown('<div class="start-btn">', unsafe_allow_html=True)
-        start = st.button("Iniciar Análisis")
-        st.markdown('</div>', unsafe_allow_html=True)
+    # Botón azul de análisis
+    start = st.button("Iniciar Análisis")
 
+    # Mostrar miniatura solo si se sube archivo
     if uploaded_file:
         img = Image.open(uploaded_file)
         st.image(img, caption="Imagen cargada", width=230)

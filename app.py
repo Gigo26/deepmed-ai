@@ -52,14 +52,14 @@ st.set_page_config(
     layout="wide"
 )
 
-# Google Fonts + Iconos
+# Cargar Google Fonts + Icons
 st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 """, unsafe_allow_html=True)
 
 # ==========================================================
-# CSS GLOBAL + TRUCO DEL UPLOADER FUNCIONAL
+# CSS GLOBAL + TRUCO DEL FILE UPLOADER 100% FUNCIONAL
 # ==========================================================
 st.markdown("""
 <style>
@@ -71,36 +71,34 @@ body, [data-testid="stAppViewContainer"] {
     font-family: 'Inter', sans-serif;
 }
 
-/* ---- SUBIR ARCHIVO FUNCIONAL SIN JS ---- */
-.file-uploader-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.file-uploader-real {
+/* ---- INPUT REAL UBICADO SOBRE EL CUADRO PUNTEADO ---- */
+.file-input-layer {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 350px;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 50;
+    height: 100%;
+    opacity: 0;        /* invisible */
+    z-index: 100;      /* encima del cuadro */
+    cursor: pointer;   /* hace click */
 }
 
 /* ---- CUADRO PUNTEADO ---- */
 .upload-box {
+    position: relative;      /* para que el input se ubique dentro */
     padding: 60px 40px;
     border: 3px dashed #2C74B3;
     border-radius: 16px;
     background-color: #D4E8F0;
     text-align: center;
-    transition: 0.3s;
     min-height: 350px;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+
+    transition: 0.25s;
 }
 
 .upload-box:hover {
@@ -115,7 +113,7 @@ body, [data-testid="stAppViewContainer"] {
     margin-bottom: 20px;
 }
 
-/* Texto del cuadro */
+/* Texto */
 .upload-main-text {
     font-size: 18px;
     font-weight: 800;
@@ -127,7 +125,7 @@ body, [data-testid="stAppViewContainer"] {
     margin-bottom: 25px;
 }
 
-/* Botón fake que se ve */
+/* Botón falso */
 .upload-btn-visible {
     background-color: white;
     border: 2px solid #2C74B3;
@@ -137,10 +135,6 @@ body, [data-testid="stAppViewContainer"] {
     font-weight: 700;
 }
 
-.upload-btn-visible:hover {
-    background-color: #F0F7FF;
-}
-
 /* ---- BOTÓN INICIAR ANÁLISIS ---- */
 .analyze-btn {
     width: 100%;
@@ -148,16 +142,18 @@ body, [data-testid="stAppViewContainer"] {
     font-size: 22px;
     font-weight: 800;
     color: white;
-    background: linear-gradient(90deg, #729DC8 0%, #54708E 100%);
+
+    background: linear-gradient(90deg, #7BA3C8 0%, #5B738A 100%);
     border: none;
     border-radius: 16px;
     cursor: pointer;
+
     transition: 0.25s;
-    box-shadow: 0 4px 10px rgba(70,90,120,0.3);
+    box-shadow: 0 4px 10px rgba(80, 100, 130, 0.3);
 }
 
 .analyze-btn:hover {
-    background: linear-gradient(90deg, #7FB0DF 0%, #5F85A4 100%);
+    background: linear-gradient(90deg, #88B4DA 0%, #6A849C 100%);
     transform: translateY(-2px);
 }
 
@@ -169,37 +165,70 @@ body, [data-testid="stAppViewContainer"] {
 """, unsafe_allow_html=True)
 
 # ==========================================================
-# 4. LAYOUT PRINCIPAL
+# 3. LAYOUT DE DOS COLUMNAS (COMO EN TU DISEÑO)
 # ==========================================================
-st.markdown("""
-<h2 style="font-weight:900; color:#0A2647;"><i class="fa-solid fa-cloud-arrow-up"></i> Subir Tomografía (CT)</h2>
-""", unsafe_allow_html=True)
+col1, col2 = st.columns([1, 1], gap="large")
 
-# ---- CUADRO DE UPLOAD FUNCIONAL ----
-uploaded_file = st.file_uploader(
-    "Selecciona tu archivo",
-    type=["jpg", "jpeg", "png", "dcm"],
-    label_visibility="collapsed",
-    key="file_real_input"
-)
+# ==========================================================
+# COLUMNA 1 — SUBIR IMAGEN
+# ==========================================================
+with col1:
 
-st.markdown("""
-<div class="file-uploader-wrapper">
+    st.markdown("""
+    <h2 style="font-weight:900; color:#0A2647;">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Subir Tomografía (CT)
+    </h2>
+    <hr>
+    """, unsafe_allow_html=True)
+
+    # ---- SUBIMOS EL file_uploader (invisible) ----
+    uploaded_file = st.file_uploader(
+        "Selecciona una imagen",
+        type=["jpg", "jpeg", "png", "dcm"],
+        label_visibility="collapsed",
+        key="ct_input"
+    )
+
+    # ---- CUADRO PUNTEADO CON INPUT INVISIBLE ----
+    st.markdown("""
     <div class="upload-box">
+        <input type="file" class="file-input-layer" id="file_uploader_front">
         <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
-        <div class="upload-main-text">Arrastra y suelta una imagen aquí</div>
-        <div class="upload-subtext">Soporta JPEG, JPG, PNG</div>
+        <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
+        <div class="upload-subtext">Soporta JPG, PNG, DICOM</div>
         <div class="upload-btn-visible">Seleccionar Archivo</div>
     </div>
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-# ---- BOTÓN ANÁLISIS ----
-analyze_clicked = st.button("Iniciar Análisis", key="analyze_btn", use_container_width=True)
+    # ---- Mostrar imagen subida ----
+    if uploaded_file is not None:
+        st.image(uploaded_file, use_column_width=True)
 
-if analyze_clicked:
-    if uploaded_file is None:
-        st.error("⚠️ Por favor, sube una imagen primero")
-    else:
-        st.success("✅ Análisis iniciado...")
+    # ---- BOTÓN ANALIZAR ----
+    st.markdown("")
+    analyze_clicked = st.button(
+        "Iniciar Análisis",
+        key="analyze_btn",
+        help="Procesar la tomografía",
+        use_container_width=True
+    )
 
+    if analyze_clicked:
+        if uploaded_file is None:
+            st.error("⚠️ Por favor sube una imagen primero")
+        else:
+            st.success("✅ Procesando imagen...")
+
+# ==========================================================
+# COLUMNA 2 — RESULTADOS
+# ==========================================================
+with col2:
+    st.markdown("""
+    <h2 style="font-weight:900; color:#0A2647;">
+        <i class="fa-solid fa-microscope"></i> Resultados del Diagnóstico
+    </h2>
+    <hr>
+    <p style="padding:20px; color:#777; font-size:15px;">
+        Sube una imagen y presiona <b>“Iniciar Análisis”</b> para ver los resultados de la IA.
+    </p>
+    """, unsafe_allow_html=True)

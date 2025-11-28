@@ -208,32 +208,24 @@ col1, col2 = st.columns([1, 1], gap="large")
 with col1:
 
     st.markdown("""
-        <h2 style="font-weight:900; color:#0A2647;">
-            <i class="fa-solid fa-cloud-arrow-up"></i> Subir Tomografía (CT)
-        </h2>
-        <hr>
+    <h2 style="font-weight:900; color:#0A2647;">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Subir Tomografía (CT)
+    </h2>
+    <hr>
     """, unsafe_allow_html=True)
 
-    # ---- FILE UPLOADER REAL (OCULTO) ----
+    # ---- SUBIMOS EL file_uploader (invisible) ----
     uploaded_file = st.file_uploader(
         "Selecciona una imagen",
         type=["jpg", "jpeg", "png", "dcm"],
-        key="real_uploader",
-        label_visibility="collapsed"
+        label_visibility="collapsed",
+        key="ct_input"
     )
 
-    # ---- FORZAR ID AL CONTENEDOR DEL FILE UPLOADER ----
+    # ---- CUADRO PUNTEADO CON INPUT INVISIBLE ----
     st.markdown("""
-    <script>
-    // Cambiar ID al uploader real (necesario para simular el click)
-    let uploader = window.parent.document.querySelector('[data-testid="stFileUploader"]');
-    if(uploader){ uploader.id = "hidden_uploader"; }
-    </script>
-    """, unsafe_allow_html=True)
-
-    # ---- CUADRO PUNTEADO ----
-    st.markdown("""
-    <div class="upload-box" onclick="document.getElementById('hidden_uploader').click()">
+    <div class="upload-box">
+        <input type="file" class="file-input-layer" id="file_uploader_front">
         <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
         <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
         <div class="upload-subtext">Soporta JPG, PNG, DICOM</div>
@@ -241,14 +233,16 @@ with col1:
     </div>
     """, unsafe_allow_html=True)
 
-    # ---- MOSTRAR IMAGEN ----
+    # ---- Mostrar imagen subida ----
     if uploaded_file is not None:
         st.image(uploaded_file, use_column_width=True)
 
     # ---- BOTÓN ANALIZAR ----
+    st.markdown("")
     analyze_clicked = st.button(
         "Iniciar Análisis",
         key="analyze_btn",
+        help="Procesar la tomografía",
         use_container_width=True
     )
 

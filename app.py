@@ -262,9 +262,9 @@ div.stButton > button[kind="secondary"] {
     color: white;
     border: none;
     height: 60px;
-    font-size: 20px;
-    font-weight: bold;
-    border-radius: 12px;
+    font-size: 26px;
+    font-weight: 900;
+    border-radius: 70px;
 }
 </style>
 """, unsafe_allow_html=True)

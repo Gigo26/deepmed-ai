@@ -389,57 +389,34 @@ col1, col2 = st.columns([1, 1], gap="large")
 # COLUMNA 1 — SUBIR IMAGEN
 # ==========================================================
 with col1:
-    st.markdown("""
-    <h2 style="font-weight:900; color:#0A2647; margin-bottom: 5px;">
-        <i class="fa-solid fa-upload"></i> Subir Tomografía (CT)
-    </h2>
-    <hr style="margin-top: 0px; margin-bottom: 15px;">
-    """, unsafe_allow_html=True)
+    st.markdown(""" ... """)
 
-    # ESTE ES EL UPLOADER REAL (Ya no lo ocultaremos, lo transformaremos)
-    uploaded_file = st.file_uploader(
-        "Sube tu tomografía", # Texto para accesibilidad
-        type=["jpg", "jpeg", "png", "dcm"],
-        key="ct_input"
-    )
+    uploaded_file = st.file_uploader(...)
 
-    if uploaded_file is not None:
-        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-        st.image(uploaded_file, use_column_width=True)
+    if uploaded_file:
+        st.image(uploaded_file, use_container_width=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    analyze_clicked = st.button(
-        "Iniciar Análisis",
-        key="analyze_btn",
-        use_container_width=True 
-    )
+    analyze_clicked = st.button("Iniciar Análisis", use_container_width=True)
 
-     if analyze_clicked:
+    if analyze_clicked:
         if uploaded_file is None:
             st.error("⚠️ Por favor sube una imagen primero")
         else:
             st.success("🔍 Procesando imagen...")
 
-            # Tiempo de inicio
             start_time = time.time()
-
-            # Abrir imagen
             image = Image.open(uploaded_file).convert("RGB")
             img_tensor = transform(image).unsqueeze(0)
 
-            # Inferencia
             with torch.no_grad():
                 output = model(img_tensor)
                 probabilities = torch.softmax(output, dim=1)
                 confidence, predicted = torch.max(probabilities, 1)
 
-            # Resultado final
             diagnosis = CLASSES[predicted.item()]
             confidence_pct = float(confidence.item() * 100)
             inference_time = round(time.time() - start_time, 2)
 
-            # Guardar en session_state
             st.session_state["diagnosis"] = diagnosis
             st.session_state["confidence"] = confidence_pct
             st.session_state["inference_time"] = inference_time

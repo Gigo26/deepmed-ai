@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
+from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 from PIL import Image
 import numpy as np
 import time
@@ -45,6 +46,27 @@ class LungCNN(nn.Module):
         return self.net(x)
 
 # ==========================================================
+# 1. MODELO EFFICIENTNET
+# ==========================================================
+class LungEfficientNet(nn.Module):
+    def __init__(self):
+        super(LungEfficientNet, self).__init__()
+
+        # Cargar EfficientNetB0 preentrenada
+        self.model = efficientnet_b0(weights=EfficientNet_B0_Weights.IMAGENET1K_V1)
+
+        # Congelar características
+        for param in self.model.features.parameters():
+            param.requires_grad = False
+
+        # Reemplazar la capa final
+        in_features = self.model.classifier[1].in_features
+        self.model.classifier[1] = nn.Linear(in_features, 3)
+
+    def forward(self, x):
+        return self.model(x)
+
+# ==========================================================
 # 2. TRANSFORMACIONES Y CLASES
 # ==========================================================
 transform = transforms.Compose([
@@ -55,7 +77,7 @@ transform = transforms.Compose([
 CLASSES = ["Benigno", "Maligno", "Normal"]
 
 # ==========================================================
-# 3. CARGAR MODELO ENTRENADO (CORREGIDO)
+# 3. CARGAR MODELO ENTRENADO CNN
 # ==========================================================
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -66,7 +88,18 @@ model = torch.load(ruta_modelo, map_location=device)
 model.to(device)
 model.eval()
 
+# ==========================================================
+# 3. CARGAR MODELO ENTRENADO EFFICIENTNET
+# ==========================================================
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+ruta_modelo = "modelo_efficientnet_completo.pt"
+
+# Cargar el modelo completo (arquitectura + pesos)
+eff_model = torch.load("modelo_efficientnet_completo.pt", map_location=device)
+eff_model.eval()
+eff_model.to(device)
+ 
 # ==========================================================
 # 4. CONFIGURACIÓN DE PÁGINA
 # ==========================================================
@@ -440,12 +473,41 @@ with col1:
                 confidence_pct = float(confidence.item() * 100)
                 inference_time = round(time.time() - start_time, 2)
 
-                st.session_state["diagnosis"] = diagnosis
-                st.session_state["confidence"] = confidence_pct
-                st.session_state["inference_time"] = inference_time
-                st.session_state["analysis_complete"] = True
-                
-                st.rerun()
+                # === 1) CNN === 
+                image = Image.open(uploaded_file).convert("RGB")
+img_tensor = transform(image).unsqueeze(0).to(device)
+
+with torch.no_grad():
+    output = model(img_tensor)
+    probs = torch.softmax(output, dim=1)
+    conf_cnn, pred_cnn = torch.max(probs, 1)
+
+cnn_diag = CLASSES[pred_cnn.item()]
+cnn_conf = float(conf_cnn.item() * 100)
+cnn_time = round(time.time() - start_time, 3)
+
+
+# === 2) EfficientNet ===
+start_eff = time.time()
+
+with torch.no_grad():
+    output_eff = eff_model(img_tensor)     # Usa el MISMO tensor
+    probs_eff = torch.softmax(output_eff, dim=1)
+    conf_eff, pred_eff = torch.max(probs_eff, 1)
+
+eff_diag = CLASSES[pred_eff.item()]
+eff_conf = float(conf_eff.item() * 100)
+eff_time = round(time.time() - start_eff, 3)
+
+
+# === Guardar todo ===
+st.session_state["multi_results"] = {
+    "CNN":      (cnn_diag, cnn_conf, cnn_time),
+    "EfficientNetB0": (eff_diag, eff_conf, eff_time)
+}
+st.session_state["analysis_complete"] = True
+
+st.rerun()
 
             except Exception as e:
                 st.error(f"Error durante el análisis: {e}")
@@ -462,76 +524,62 @@ with col2:
         <hr>
     """, unsafe_allow_html=True)
 
-    if "analysis_complete" not in st.session_state:
-        st.markdown("""
-            <div style="text-align:center; padding:20px;">
-                <i class="fa-solid fa-microscope" 
-                style="font-size:60px; color:#0A2647; margin-bottom:15px;"></i>
-                <p style="color:#777; font-size:15px;">
-                    Sube una imagen y presiona <b>“Iniciar Análisis”</b>.
-                </p>
-            </div>
-        """, unsafe_allow_html=True)
+    def get_diag_color(diag):
+    colores = {
+        "Normal": "#28A745",    # Verde
+        "Benigno": "#FFC107",   # Amarillo
+        "Maligno": "#DC3545"    # Rojo
+    }
+    return colores.get(diag, "#5B6DFF") 
+    
+    if "analysis_complete" in st.session_state:
 
-    else:
-        diag = st.session_state["diagnosis"]
-        conf = st.session_state["confidence"]
-        inf_time = st.session_state["inference_time"]
+    results = st.session_state["multi_results"]
 
-        color_map = {
-            "Normal": "#28A745",
-            "Benigno": "#FFC107",
-            "Maligno": "#DC3545"
-        }
+    st.markdown("""
+    <h2 style='font-weight:900; color:#0A2647; margin-bottom:10px;'>
+        <i class="fa-solid fa-chart-column"></i> Comparación de Modelos
+    </h2>
+    <hr>
+    """, unsafe_allow_html=True)
 
-        diag_color = color_map.get(diag, "#2C74B3")
+    tabla_html = """
+    <table style="width:100%; border-collapse:collapse; 
+                  font-family:Inter; font-size:16px; 
+                  border-radius:10px; overflow:hidden;">
+        <tr style="background:#0A2647; color:white; text-align:center;">
+            <th style="padding:10px;">Modelo</th>
+            <th style="padding:10px;">Predicción</th>
+            <th style="padding:10px;">Confianza</th>
+            <th style="padding:10px;">Tiempo</th>
+        </tr>
+    """
 
-        diag_icon = {
-            "Normal": "✅",
-            "Benigno": "⚠️",
-            "Maligno": "🚨"
-        }
+    for modelo, (diag, conf, tiempo) in results.items():
 
-        icon = diag_icon.get(diag, "")
+        # Color según diagnóstico
+        bg = get_diag_color(diag)
+        bg_soft = bg + "20"  # Versión suave con transparencia
 
-        st.markdown(f"""
-        <div style="
-        background:white;
-        padding:25px;
-        border-radius:16px;
-        box-shadow:0 4px 12px rgba(0,0,0,0.1);
-        ">
-        
-        <div style="text-align:center;
-        padding: 15px;
-        border-radius: 10px;
-        border: 3px solid {diag_color};
-        background-color: {diag_color}1A;
-        margin-bottom: 20px;">
-        <p style="font-size:28px; font-weight:900; color:{diag_color}">
-        {icon} {diag}
-        </p>
-        </div>
-        
-        <p style="color:#000; font-weight:700;"><b>Nivel de Confianza:</b></p>
-        <p style="font-size:36px; font-weight:900; color:#000;">{conf:.1f}%</p>
-        
-        <div style="height: 15px; background:#eee; border-radius: 7px;">
-        <div style="width:{conf}%; height:100%; background:{diag_color};"></div>
-        </div>
-        
-        <br>
-        
-        <p style="color:#000; font-weight:700;">
-        <b>Modelo Utilizado:</b> CNN personalizada
-        </p>
-        
-        <p style="color:#000; font-weight:700;">
-        <b>Tiempo de Inferencia:</b> {inf_time} segundos
-        </p>
-        
-        </div>
-        """, unsafe_allow_html=True)
+        tabla_html += f"""
+        <tr style="text-align:center; background:{bg_soft};">
+            <td style="padding:10px; font-weight:700; color:#0A2647;">
+                {modelo}
+            </td>
+            <td style="padding:10px; color:{bg}; font-weight:900;">
+                {diag}
+            </td>
+            <td style="padding:10px; font-weight:900; color:#0A2647;">
+                {conf:.1f}%
+            </td>
+            <td style="padding:10px; color:#0A2647;">
+                {tiempo}s
+            </td>
+        </tr>
+        """
 
+    tabla_html += "</table>"
+
+    st.markdown(tabla_html, unsafe_allow_html=True)
 
 

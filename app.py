@@ -59,6 +59,86 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================================
+# 3. CSS DEL HEADER (CORREGIDO)
+# ==========================================================
+st.markdown("""
+<style>
+/* Ocultar header nativo de Streamlit */
+[data-testid="stHeader"] {
+    display: none !important;
+}
+
+/* HEADER FULL WIDTH PEGADO ARRIBA */
+.custom-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 18px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, #00007A 0%, #6B6BDF 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 9999;
+    font-family: 'Inter', sans-serif;
+}
+
+
+
+/* Ajuste correcto del contenido */
+.stMainBlockContainer {
+    padding-top: 110px !important;
+}
+
+/* Layout del lado izquierdo */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Títulos */
+.header-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.header-title-main {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: white;
+    letter-spacing: 1.3px;
+    line-height: 1;
+}
+
+.header-subtitle {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 300;
+    opacity: 0.95;
+    color: #e5e5e5;
+    letter-spacing: 0.5px;
+}
+
+/* Íconos */
+.icon-style {
+    font-size: 34px;
+    color: white;
+}
+
+/* Espaciador */
+.header-spacer {
+    flex-grow: 1;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ==========================================================
 # CSS GLOBAL + TRUCO DEL FILE UPLOADER 100% FUNCIONAL
 # ==========================================================
 st.markdown("""
@@ -197,6 +277,22 @@ body, [data-testid="stAppViewContainer"] {
 </style>
 """, unsafe_allow_html=True)
 
+# ==========================================================
+# 4. HEADER HTML
+# ==========================================================
+st.markdown("""
+<div class="custom-header">
+    <div class="header-left">
+        <i class="fa-solid fa-lungs icon-style"></i>
+        <div class="header-title">
+            <div class="header-title-main">DEEPMED AI</div>
+            <div class="header-subtitle">Lung Cancer Detection System</div>
+        </div>
+    </div>
+    <div class="header-spacer"></div>
+    <i class="fa-solid fa-user-md icon-style" title="Medical Staff"></i>
+</div>
+""", unsafe_allow_html=True)
 # ==========================================================
 # 3. LAYOUT DE DOS COLUMNAS (COMO EN TU DISEÑO)
 # ==========================================================

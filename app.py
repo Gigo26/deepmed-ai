@@ -495,39 +495,39 @@ with col2:
         icon = diag_icon.get(diag, "")
 
         st.markdown(f"""
-            <div style="
-                background:white;
-                padding:25px;
-                border-radius:16px;
-                box-shadow:0 4px 12px rgba(0,0,0,0.1);
-            ">
-                <h3 style="color:#0A2647; font-weight:900; text-align:center;">
-                    Resultado del Modelo
-                </h3>
+<div style="
+    background:white;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+">
+    <h3 style="color:#0A2647; font-weight:900; text-align:center;">
+        Resultado del Modelo
+    </h3>
 
-                <div style="text-align:center;
-                            padding: 15px;
-                            border-radius: 10px;
-                            border: 3px solid {diag_color};
-                            background-color: {diag_color}1A;
-                            margin-bottom: 20px;">
-                    <p style="font-size:28px; font-weight:900; color:{diag_color}">
-                        {icon} {diag}
-                    </p>
-                </div>
+    <div style="text-align:center;
+                padding: 15px;
+                border-radius: 10px;
+                border: 3px solid {diag_color};
+                background-color: {diag_color}1A;
+                margin-bottom: 20px;">
+        <p style="font-size:28px; font-weight:900; color:{diag_color}">
+            {icon} {diag}
+        </p>
+    </div>
 
-                <p><b>Nivel de Confianza:</b></p>
-                <p style="font-size:36px; font-weight:900;">{conf:.1f}%</p>
+    <p><b>Nivel de Confianza:</b></p>
+    <p style="font-size:36px; font-weight:900;">{conf:.1f}%</p>
 
-                <div style="height: 15px; background:#eee; border-radius: 7px;">
-                    <div style="width:{conf}%; height:100%; background:{diag_color};"></div>
-                </div>
+    <div style="height: 15px; background:#eee; border-radius: 7px;">
+        <div style="width:{conf}%; height:100%; background:{diag_color};"></div>
+    </div>
 
-                <br>
-                <p><b>Modelo Utilizado:</b> CNN personalizada</p>
-                <p><b>Tiempo de Inferencia:</b> {inf_time} segundos</p>
-            </div>
-        """, unsafe_allow_html=True)
+    <br>
+    <p><b>Modelo Utilizado:</b> CNN personalizada</p>
+    <p><b>Tiempo de Inferencia:</b> {inf_time} segundos</p>
+</div>
+""", unsafe_allow_html=True)
 
 
 

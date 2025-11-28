@@ -55,11 +55,17 @@ transform = transforms.Compose([
 CLASSES = ["Normal", "Benigno", "Maligno"]
 
 # ==========================================================
-# 3. CARGAR MODELO (AHORA SÍ FUNCIONA)
-# Nota: En un entorno de producción, aquí se cargaría el 
-# estado entrenado: model.load_state_dict(torch.load('ruta_al_modelo.pth'))
+# 3. CARGAR MODELO ENTRENADO (AQUÍ SE ARREGLA LA LÓGICA)
 # ==========================================================
-model = LungCNN()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+model = LungCNN().to(device)
+
+# ⚠️ MODIFICA ESTA RUTA:
+ruta_modelo = "modelo_cnn_completo.pt"
+
+state_dict = torch.load(ruta_modelo, map_location=device)
+model.load_state_dict(state_dict)
 model.eval()
 
 # ==========================================================
@@ -386,31 +392,30 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================================
-# 9. LAYOUT DE DOS COLUMNAS (CONTENIDO PRINCIPAL)
+# 9. LAYOUT DE DOS COLUMNAS 
 # ==========================================================
 col1, col2 = st.columns([1, 1], gap="large")
 
 # ==========================================================
-# COLUMNA 1 — SUBIR IMAGEN (Lógica y Componentes)
+# COLUMNA 1 — SUBIR IMAGEN
 # ==========================================================
 with col1:
-    # Título para la Columna 1
+
     st.markdown("""
         <h2 style="font-weight:900; color:#0A2647;">
             <i class="fa-solid fa-cloud-upload-alt"></i> Sube tu Imagen Radiológica
         </h2>
     """, unsafe_allow_html=True)
 
-    # Componente de carga de archivos (Completado para ser funcional)
     uploaded_file = st.file_uploader(
-        "Carga la imagen de rayos X de un pulmón para clasificarla.",
+        "Carga la imagen de rayos X",
         type=["jpg", "jpeg", "png"],
         accept_multiple_files=False,
         label_visibility="collapsed"
     )
 
     if uploaded_file:
-        st.image(uploaded_file, caption="Imagen Subida", use_container_width=True)
+        st.image(uploaded_file, caption="Imagen subida", use_container_width=True)
 
     analyze_clicked = st.button("Iniciar Análisis", use_container_width=True)
 
@@ -418,13 +423,14 @@ with col1:
         if uploaded_file is None:
             st.error("⚠️ Por favor sube una imagen primero")
         else:
-            # st.success("🔍 Procesando imagen...") # Se comenta para evitar un mensaje fugaz
-
             start_time = time.time()
-            # El modelo está sin entrenar, por lo que el resultado es aleatorio/basado en pesos iniciales
+
             try:
+                # ==============================
+                #  🔥 INFERENCIA REAL DEL MODELO
+                # ==============================
                 image = Image.open(uploaded_file).convert("RGB")
-                img_tensor = transform(image).unsqueeze(0)
+                img_tensor = transform(image).unsqueeze(0).to(device)
 
                 with torch.no_grad():
                     output = model(img_tensor)
@@ -438,16 +444,18 @@ with col1:
                 st.session_state["diagnosis"] = diagnosis
                 st.session_state["confidence"] = confidence_pct
                 st.session_state["inference_time"] = inference_time
-                st.session_state["analysis_complete"] = True # Bandera de éxito
-                st.experimental_rerun() # Rerun para actualizar Col2
+                st.session_state["analysis_complete"] = True
+
+                st.experimental_rerun()
 
             except Exception as e:
-                st.error(f"Ocurrió un error durante el análisis: {e}")
+                st.error(f"Error durante el análisis: {e}")
 
 # ==========================================================
-# COLUMNA 2 — RESULTADOS (Lógica y Visualización)
+# COLUMNA 2 — RESULTADOS
 # ==========================================================
 with col2:
+
     st.markdown("""
         <h2 style="font-weight:900; color:#0A2647;">
             <i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico
@@ -455,38 +463,36 @@ with col2:
         <hr>
     """, unsafe_allow_html=True)
 
-    # Si AÚN no se analizó nada
     if "analysis_complete" not in st.session_state:
         st.markdown("""
             <div style="text-align:center; padding:20px;">
                 <i class="fa-solid fa-microscope" 
                 style="font-size:60px; color:#0A2647; margin-bottom:15px;"></i>
                 <p style="color:#777; font-size:15px;">
-                    Sube una imagen y presiona <b>“Iniciar Análisis”</b> para ver los resultados de la IA.
+                    Sube una imagen y presiona <b>“Iniciar Análisis”</b>.
                 </p>
             </div>
         """, unsafe_allow_html=True)
 
-    # SI YA HAY RESULTADOS
     else:
         diag = st.session_state["diagnosis"]
         conf = st.session_state["confidence"]
         inf_time = st.session_state["inference_time"]
 
-        # Determinar el color de la etiqueta de diagnóstico
         color_map = {
-            "Normal": "#28A745", # Verde
-            "Benigno": "#FFC107", # Amarillo
-            "Maligno": "#DC3545" # Rojo
+            "Normal": "#28A745",
+            "Benigno": "#FFC107",
+            "Maligno": "#DC3545"
         }
+
         diag_color = color_map.get(diag, "#2C74B3")
-        
-        # Icono basado en el diagnóstico
+
         diag_icon = {
             "Normal": "✅",
             "Benigno": "⚠️",
             "Maligno": "🚨"
         }
+
         icon = diag_icon.get(diag, "")
 
         st.markdown(f"""
@@ -495,63 +501,36 @@ with col2:
                 padding:25px;
                 border-radius:16px;
                 box-shadow:0 4px 12px rgba(0,0,0,0.1);
-                margin-top:15px;
             ">
-                <h3 style="color:#0A2647; font-weight:900; text-align:center; margin-bottom: 20px;">
+                <h3 style="color:#0A2647; font-weight:900; text-align:center;">
                     Resultado del Modelo
                 </h3>
-                
-                <div style="
-                    text-align:center; 
-                    padding: 15px;
-                    border-radius: 10px;
-                    border: 3px solid {diag_color};
-                    background-color: {diag_color}1A; /* 10% opacidad */
-                    margin-bottom: 20px;
-                ">
-                    <p style="
-                        font-size:28px; 
-                        font-weight:900; 
-                        color:{diag_color}; 
-                        margin: 0;
-                        line-height: 1.2;
-                    ">
+
+                <div style="text-align:center;
+                            padding: 15px;
+                            border-radius: 10px;
+                            border: 3px solid {diag_color};
+                            background-color: {diag_color}1A;
+                            margin-bottom: 20px;">
+                    <p style="font-size:28px; font-weight:900; color:{diag_color}">
                         {icon} {diag}
                     </p>
                 </div>
 
+                <p><b>Nivel de Confianza:</b></p>
+                <p style="font-size:36px; font-weight:900;">{conf:.1f}%</p>
 
-                <p style="font-size:16px; color:#555; margin-bottom: 5px;">
-                    <b>Nivel de Confianza:</b>
-                </p>
-                <p style="font-size:36px; color:#0A2647; font-weight:900; margin-top: 0;">
-                    {conf:.1f}%
-                </p>
-                <!-- Barra de progreso visual -->
-                <div style="
-                    height: 15px; 
-                    background-color: #eee; 
-                    border-radius: 7px;
-                    overflow: hidden;
-                    margin-bottom: 20px;
-                ">
-                    <div style="
-                        width: {conf}%; 
-                        height: 100%; 
-                        background-color: {diag_color};
-                        transition: width 0.5s ease-in-out;
-                    "></div>
+                <div style="height: 15px; background:#eee; border-radius: 7px;">
+                    <div style="width:{conf}%; height:100%; background:{diag_color};"></div>
                 </div>
 
-
-                <p style="font-size:16px; color:#555;">
-                    <b>Modelo Utilizado:</b><br>
-                    <span style="font-weight: 600; color: #0A2647;">DeepResNet-50 v2 (CNN Personalizada)</span>
-                </p>
-
-                <p style="font-size:16px; color:#555;">
-                    <b>Tiempo de Inferencia:</b><br>
-                    <span style="font-weight: 600; color: #0A2647;">{inf_time} segundos</span>
-                </p>
+                <br>
+                <p><b>Modelo Utilizado:</b> CNN personalizada</p>
+                <p><b>Tiempo de Inferencia:</b> {inf_time} segundos</p>
             </div>
         """, unsafe_allow_html=True)
+
+
+
+
+

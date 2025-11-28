@@ -439,6 +439,7 @@ with col1:
         </h2>
     """, unsafe_allow_html=True)
 
+    # --- Subidor de archivo ---
     uploaded_file = st.file_uploader(
         "Carga la imagen de rayos X",
         type=["jpg", "jpeg", "png"],
@@ -446,58 +447,65 @@ with col1:
         label_visibility="collapsed"
     )
 
+    # Mostrar vista previa
     if uploaded_file:
         st.image(uploaded_file, caption="Imagen subida", use_container_width=True)
 
+    # Botón de análisis
     analyze_clicked = st.button("Iniciar Análisis", use_container_width=True)
 
+    # ===============================
+    #    🔥 EJECUTAR ANÁLISIS
+    # ===============================
     if analyze_clicked:
-    if uploaded_file is None:
-        st.error("⚠️ Por favor sube una imagen primero")
-    else:
-        try:
-            # ======================================
-            #     🔥 PROCESAR IMAGEN UNA SOLA VEZ
-            # ======================================
-            image = Image.open(uploaded_file).convert("RGB")
-            img_tensor = transform(image).unsqueeze(0).to(device)
+        if uploaded_file is None:
+            st.error("⚠️ Por favor sube una imagen primero")
+        else:
+            try:
+                # --- Procesar la imagen una sola vez ---
+                image = Image.open(uploaded_file).convert("RGB")
+                img_tensor = transform(image).unsqueeze(0).to(device)
 
-            # --- 1) CNN ---
-            start_cnn = time.time()
-            with torch.no_grad():
-                out_cnn = model(img_tensor)
-                probs_cnn = torch.softmax(out_cnn, dim=1)
-                conf_cnn, pred_cnn = torch.max(probs_cnn, 1)
+                # =====================
+                #    🔹 1) CNN
+                # =====================
+                start_cnn = time.time()
+                with torch.no_grad():
+                    out_cnn = model(img_tensor)
+                    probs_cnn = torch.softmax(out_cnn, dim=1)
+                    conf_cnn, pred_cnn = torch.max(probs_cnn, 1)
 
-            cnn_diag = CLASSES[pred_cnn.item()]
-            cnn_conf = float(conf_cnn.item() * 100)
-            cnn_time = round(time.time() - start_cnn, 3)
+                cnn_diag = CLASSES[pred_cnn.item()]
+                cnn_conf = float(conf_cnn.item() * 100)
+                cnn_time = round(time.time() - start_cnn, 3)
 
-            # --- 2) EfficientNet ---
-            start_eff = time.time()
-            with torch.no_grad():
-                out_eff = eff_model(img_tensor)
-                probs_eff = torch.softmax(out_eff, dim=1)
-                conf_eff, pred_eff = torch.max(probs_eff, 1)
+                # =============================
+                #    🔹 2) EfficientNetB0
+                # =============================
+                start_eff = time.time()
+                with torch.no_grad():
+                    out_eff = eff_model(img_tensor)
+                    probs_eff = torch.softmax(out_eff, dim=1)
+                    conf_eff, pred_eff = torch.max(probs_eff, 1)
 
-            eff_diag = CLASSES[pred_eff.item()]
-            eff_conf = float(conf_eff.item() * 100)
-            eff_time = round(time.time() - start_eff, 3)
+                eff_diag = CLASSES[pred_eff.item()]
+                eff_conf = float(conf_eff.item() * 100)
+                eff_time = round(time.time() - start_eff, 3)
 
-            # ======================================
-            #      🔥 GUARDAR RESULTADOS
-            # ======================================
-            st.session_state["multi_results"] = {
-                "CNN":              (cnn_diag, cnn_conf, cnn_time),
-                "EfficientNetB0":   (eff_diag, eff_conf, eff_time)
-            }
-            st.session_state["analysis_complete"] = True
+                # =============================
+                #    🔥 GUARDAR RESULTADOS
+                # =============================
+                st.session_state["multi_results"] = {
+                    "CNN":            (cnn_diag, cnn_conf, cnn_time),
+                    "EfficientNetB0": (eff_diag, eff_conf, eff_time)
+                }
 
-            st.rerun()
+                st.session_state["analysis_complete"] = True
 
-        except Exception as e:
-            st.error(f"Error durante el análisis: {e}")
+                st.rerun()
 
+            except Exception as e:
+                st.error(f"Error durante el análisis: {e}")
 # ==========================================================
 # COLUMNA 2 — RESULTADOS
 # ==========================================================
@@ -510,62 +518,79 @@ with col2:
         <hr>
     """, unsafe_allow_html=True)
 
+    # ==========================================================
+    #   FUNCIÓN DE COLOR POR DIAGNÓSTICO
+    # ==========================================================
     def get_diag_color(diag):
-    colores = {
-        "Normal": "#28A745",    # Verde
-        "Benigno": "#FFC107",   # Amarillo
-        "Maligno": "#DC3545"    # Rojo
-    }
-    return colores.get(diag, "#5B6DFF") 
-    
+        colores = {
+            "Normal": "#28A745",   # Verde
+            "Benigno": "#FFC107",  # Amarillo
+            "Maligno": "#DC3545"   # Rojo
+        }
+        return colores.get(diag, "#5B6DFF")  # Azul si no coincide
+
+    # ==========================================================
+    #   SI EL ANÁLISIS ESTÁ COMPLETO → MOSTRAR TABLA
+    # ==========================================================
     if "analysis_complete" in st.session_state:
 
-    results = st.session_state["multi_results"]
+        results = st.session_state["multi_results"]
 
-    st.markdown("""
-    <h2 style='font-weight:900; color:#0A2647; margin-bottom:10px;'>
-        <i class="fa-solid fa-chart-column"></i> Comparación de Modelos
-    </h2>
-    <hr>
-    """, unsafe_allow_html=True)
+        st.markdown("""
+        <h2 style='font-weight:900; color:#0A2647; margin-bottom:10px;'>
+            <i class="fa-solid fa-chart-column"></i> Comparación de Modelos
+        </h2>
+        <hr>
+        """, unsafe_allow_html=True)
 
-    tabla_html = """
-    <table style="width:100%; border-collapse:collapse; 
-                  font-family:Inter; font-size:16px; 
-                  border-radius:10px; overflow:hidden;">
-        <tr style="background:#0A2647; color:white; text-align:center;">
-            <th style="padding:10px;">Modelo</th>
-            <th style="padding:10px;">Predicción</th>
-            <th style="padding:10px;">Confianza</th>
-            <th style="padding:10px;">Tiempo</th>
-        </tr>
-    """
-
-    for modelo, (diag, conf, tiempo) in results.items():
-
-        # Color según diagnóstico
-        bg = get_diag_color(diag)
-        bg_soft = bg + "20"  # Versión suave con transparencia
-
-        tabla_html += f"""
-        <tr style="text-align:center; background:{bg_soft};">
-            <td style="padding:10px; font-weight:700; color:#0A2647;">
-                {modelo}
-            </td>
-            <td style="padding:10px; color:{bg}; font-weight:900;">
-                {diag}
-            </td>
-            <td style="padding:10px; font-weight:900; color:#0A2647;">
-                {conf:.1f}%
-            </td>
-            <td style="padding:10px; color:#0A2647;">
-                {tiempo}s
-            </td>
-        </tr>
+        # Crear tabla
+        tabla_html = """
+        <table style="width:100%; border-collapse:collapse; 
+                      font-family:Inter; font-size:16px; 
+                      border-radius:10px; overflow:hidden;">
+            <tr style="background:#0A2647; color:white; text-align:center;">
+                <th style="padding:10px;">Modelo</th>
+                <th style="padding:10px;">Predicción</th>
+                <th style="padding:10px;">Confianza</th>
+                <th style="padding:10px;">Tiempo</th>
+            </tr>
         """
 
-    tabla_html += "</table>"
+        # Agregar filas
+        for modelo, (diag, conf, tiempo) in results.items():
 
-    st.markdown(tabla_html, unsafe_allow_html=True)
+            bg = get_diag_color(diag)
+            bg_soft = bg + "20"  # versión suave
 
+            tabla_html += f"""
+            <tr style="text-align:center; background:{bg_soft};">
+                <td style="padding:10px; font-weight:700; color:#0A2647;">
+                    {modelo}
+                </td>
+                <td style="padding:10px; color:{bg}; font-weight:900;">
+                    {diag}
+                </td>
+                <td style="padding:10px; font-weight:900; color:#0A2647;">
+                    {conf:.1f}%
+                </td>
+                <td style="padding:10px; color:#0A2647;">
+                    {tiempo}s
+                </td>
+            </tr>
+            """
 
+        tabla_html += "</table>"
+
+        st.markdown(tabla_html, unsafe_allow_html=True)
+
+    else:
+        # Mensaje inicial si no hay análisis
+        st.markdown("""
+            <div style="text-align:center; padding:20px;">
+                <i class="fa-solid fa-microscope" 
+                style="font-size:60px; color:#0A2647; margin-bottom:15px;"></i>
+                <p style="color:#777; font-size:15px;">
+                    Sube una imagen y presiona <b>“Iniciar Análisis”</b>.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)

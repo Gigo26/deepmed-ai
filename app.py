@@ -67,6 +67,32 @@ class LungEfficientNet(nn.Module):
         return self.model(x)
 
 # ==========================================================
+# 1. MODELO VGG16
+# ==========================================================
+class LungVGG16(nn.Module):
+    def __init__(self):
+        super(LungVGG16, self).__init__()
+
+        # Cargar modelo base con pesos ImageNet
+        self.vgg = models.vgg16(weights=models.VGG16_Weights.IMAGENET1K_V1)
+
+        # Congelar capas convolucionales
+        for param in self.vgg.features.parameters():
+            param.requires_grad = False
+
+        # Reemplazar clasificador
+        self.vgg.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(25088, 128),
+            nn.ReLU(),
+            nn.Dropout(0.5),
+            nn.Linear(128, 3)     # 3 clases
+        )
+
+    def forward(self, x):
+        return self.vgg(x)
+
+# ==========================================================
 # 2. TRANSFORMACIONES Y CLASES
 # ==========================================================
 transform = transforms.Compose([
@@ -87,6 +113,15 @@ ruta_modelo = "modelo_cnn_completo.pt"
 model = torch.load(ruta_modelo, map_location=device)
 model.to(device)
 model.eval()
+
+# ==========================================================
+# 3. CARGAR MODELO ENTRENADO VGG16
+# ==========================================================
+ruta_modelo_vgg = "modelo_vgg16_completo.pt"
+
+vgg_model = torch.load(ruta_modelo_vgg, map_location=device)
+vgg_model.eval()
+vgg_model.to(device)
 
 # ==========================================================
 # 3. CARGAR MODELO ENTRENADO EFFICIENTNET
@@ -493,11 +528,25 @@ with col1:
                 eff_time = round(time.time() - start_eff, 3)
 
                 # =============================
+                #     3) VGG16 
+                # =============================
+                start_eff = time.time()
+                with torch.no_grad():
+                    out_eff = eff_model(img_tensor)
+                    probs_eff = torch.softmax(out_eff, dim=1)
+                    conf_eff, pred_eff = torch.max(probs_eff, 1)
+
+                eff_diag = CLASSES[pred_eff.item()]
+                eff_conf = float(conf_eff.item() * 100)
+                eff_time = round(time.time() - start_eff, 3)
+                
+                # =============================
                 #    🔥 GUARDAR RESULTADOS
                 # =============================
                 st.session_state["multi_results"] = {
                     "CNN":            (cnn_diag, cnn_conf, cnn_time),
-                    "EfficientNetB0": (eff_diag, eff_conf, eff_time)
+                    "EfficientNetB0": (eff_diag, eff_conf, eff_time),
+                    "VGG16":            (vgg_diag, vgg_conf, vgg_time)
                 }
 
                 st.session_state["analysis_complete"] = True

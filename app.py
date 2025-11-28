@@ -168,7 +168,15 @@ ruta_modelo = "modelo_efficientnet_completo.pt"
 eff_model = torch.load("modelo_efficientnet_completo.pt", map_location=device)
 eff_model.eval()
 eff_model.to(device)
- 
+
+# ==========================================================
+# 4. MODELO YOLOv8 (CLASIFICACIÓN)
+# ==========================================================
+from ultralytics import YOLO
+
+ruta_yolo = "modelo_yolov8_clasificacion.pt"   # tu best.pt renombrado
+yolo_model = YOLO(ruta_yolo)
+
 # ==========================================================
 # 4. CONFIGURACIÓN DE PÁGINA
 # ==========================================================
@@ -586,6 +594,25 @@ with col1:
                 res_diag = CLASSES[pred_res.item()]
                 res_conf = float(conf_res.item() * 100)
                 res_time = round(time.time() - start_res, 3)
+
+                # =============================
+                #     5) YOLOv8-CLS
+                # =============================
+                start_yolo = time.time()
+                
+                # YOLO recibe ruta o numpy array, pero mejor convertimos PIL -> numpy
+                img_array = np.array(image)
+                
+                # Hacer predicción
+                results_yolo = yolo_model(img_array, verbose=False)
+                
+                # Extraer clase y probabilidad
+                probs = results_yolo[0].probs.data.cpu().numpy()
+                pred_idx = np.argmax(probs)
+                
+                yolo_diag = CLASSES[pred_idx]                  # Benigno / Maligno / Normal
+                yolo_conf = float(probs[pred_idx] * 100)       # probabilidad
+                yolo_time = round(time.time() - start_yolo, 3) # tiempo
                 
                 # =============================
                 #    🔥 GUARDAR RESULTADOS
@@ -594,7 +621,8 @@ with col1:
                     "CNN":            (cnn_diag, cnn_conf, cnn_time),
                     "EfficientNetB0": (eff_diag, eff_conf, eff_time),
                     "VGG16":            (vgg_diag, vgg_conf, vgg_time),
-                    "ResNet50":       (res_diag, res_conf, res_time)
+                    "ResNet50":       (res_diag, res_conf, res_time),
+                    "YOLOv8": (yolo_diag, yolo_conf, yolo_time)
                 }
 
                 st.session_state["analysis_complete"] = True

@@ -385,12 +385,12 @@ with col1:
 
     # ESTE ES EL UPLOADER REAL (Ya no lo ocultaremos, lo transformaremos)
     uploaded_file = st.file_uploader(
-        "Sube tu tomografía", # Texto para accesibilidad
-        type=["jpg", "jpeg", "png", "dcm"],
-        key="ct_input"
-    )
+    "Sube tu tomografía",
+    type=["jpg", "jpeg", "png", "dcm"],
+    key="ct_input"
+)
 
-    if uploaded_file is not None:
+if uploaded_file is not None:
     img_bytes = uploaded_file.getvalue()
     img_base64 = base64.b64encode(img_bytes).decode()
 

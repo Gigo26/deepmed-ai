@@ -1,5 +1,6 @@
 import streamlit as st
 import torch
+import base64
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
@@ -390,10 +391,26 @@ with col1:
     )
 
     if uploaded_file is not None:
-        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
-        st.image(uploaded_file, use_column_width=True)
+    img_bytes = uploaded_file.getvalue()
+    img_base64 = base64.b64encode(img_bytes).decode()
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <script>
+        const dz = window.parent.document.querySelector('[data-testid="stFileUploaderDropzone"] > div');
+        if (dz) {{
+            dz.innerHTML = `
+                <img src="data:image/png;base64,{img_base64}"
+                     style="
+                        max-width: 90%;
+                        max-height: 240px;
+                        border-radius: 12px;
+                        object-fit: contain;
+                     "
+                />
+            `;
+        }}
+    </script>
+    """, unsafe_allow_html=True)
     
     analyze_clicked = st.button(
         "Iniciar Análisis",

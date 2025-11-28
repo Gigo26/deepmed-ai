@@ -163,10 +163,12 @@ model.eval()
 # ==========================================================
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-resnet_model = LungResNet50()
-resnet_model.load_state_dict(torch.load("modelo_resnet50_completo.pt", map_location=device))
-resnet_model.eval()
-resnet_model.to(device)
+try:
+    resnet_model = torch.load("modelo_resnet50_completo.pt", map_location=device)
+    resnet_model.eval()
+    resnet_model.to(device)
+except Exception as e:
+    st.error(f"⚠️ Error al cargar ResNet50: {e}")
 
 # ==========================================================
 # 3. CARGAR MODELO ENTRENADO VGG16

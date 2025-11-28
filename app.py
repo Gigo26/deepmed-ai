@@ -18,11 +18,9 @@ class LungResNet50(nn.Module):
 
         self.model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
 
-        # Congelar capas base
         for param in self.model.parameters():
             param.requires_grad = False
 
-        # Reemplazar la capa final
         num_features = self.model.fc.in_features
         self.model.fc = nn.Sequential(
             nn.Linear(num_features, 256),
@@ -163,15 +161,18 @@ model.eval()
 # ==========================================================
 # 3. CARGAR MODELO ENTRENADO RESNET50
 # ==========================================================
-ruta_resnet = "modelo_resnet50_completo.pt"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-resnet_model = torch.load(ruta_resnet, map_location=device)
+resnet_model = LungResNet50()
+resnet_model.load_state_dict(torch.load("modelo_resnet50_state.pt", map_location=device))
 resnet_model.eval()
 resnet_model.to(device)
 
 # ==========================================================
 # 3. CARGAR MODELO ENTRENADO VGG16
 # ==========================================================
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 ruta_modelo_vgg = "modelo_vgg16_completo.pt"
 
 vgg_model = torch.load(ruta_modelo_vgg, map_location=device)

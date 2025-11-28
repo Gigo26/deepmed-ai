@@ -9,6 +9,31 @@ import numpy as np
 import time
 
 # ==========================================================
+#  MODELO RESNET50 (para compatibilidad al cargar .pt)
+# ==========================================================
+class LungResNet50(nn.Module):
+    def __init__(self):
+        super(LungResNet50, self).__init__()
+
+        self.model = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
+
+        # Congelar capas base
+        for param in self.model.parameters():
+            param.requires_grad = False
+
+        # Reemplazar la capa final
+        num_features = self.model.fc.in_features
+        self.model.fc = nn.Sequential(
+            nn.Linear(num_features, 256),
+            nn.ReLU(),
+            nn.Dropout(0.4),
+            nn.Linear(256, 3)
+        )
+
+    def forward(self, x):
+        return self.model(x)
+
+# ==========================================================
 # 1. MODELO CNN (SE DEFINE PRIMERO)
 # ==========================================================
 class LungCNN(nn.Module):
@@ -113,6 +138,15 @@ ruta_modelo = "modelo_cnn_completo.pt"
 model = torch.load(ruta_modelo, map_location=device)
 model.to(device)
 model.eval()
+
+# ==========================================================
+# 3. CARGAR MODELO ENTRENADO RESNET50
+# ==========================================================
+ruta_resnet = "modelo_resnet50_completo.pt"
+
+resnet_model = torch.load(ruta_resnet, map_location=device)
+resnet_model.eval()
+resnet_model.to(device)
 
 # ==========================================================
 # 3. CARGAR MODELO ENTRENADO VGG16
@@ -539,6 +573,19 @@ with col1:
                 vgg_diag = CLASSES[pred_vgg.item()]
                 vgg_conf = float(conf_vgg.item() * 100)
                 vgg_time = round(time.time() - start_vgg, 3)
+
+                # =============================
+                #     4) RESNET50
+                # =============================
+                start_res = time.time()
+                with torch.no_grad():
+                    out_res = resnet_model(img_tensor)
+                    probs_res = torch.softmax(out_res, dim=1)
+                    conf_res, pred_res = torch.max(probs_res, 1)
+                
+                res_diag = CLASSES[pred_res.item()]
+                res_conf = float(conf_res.item() * 100)
+                res_time = round(time.time() - start_res, 3)
                 
                 # =============================
                 #    🔥 GUARDAR RESULTADOS
@@ -546,7 +593,8 @@ with col1:
                 st.session_state["multi_results"] = {
                     "CNN":            (cnn_diag, cnn_conf, cnn_time),
                     "EfficientNetB0": (eff_diag, eff_conf, eff_time),
-                    "VGG16":            (vgg_diag, vgg_conf, vgg_time)
+                    "VGG16":            (vgg_diag, vgg_conf, vgg_time),
+                    "ResNet50":       (res_diag, res_conf, res_time)
                 }
 
                 st.session_state["analysis_complete"] = True

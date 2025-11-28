@@ -149,122 +149,133 @@ st.markdown("""
 }
 
 /* =========================================
-   ESTILOS AVANZADOS DEL FILE UPLOADER v3 (CORREGIDO)
+   ESTILOS FUERTES PARA EL FILE UPLOADER
    ========================================= */
 
-/* 1. CONTENEDOR PRINCIPAL (La caja punteada) */
-/* Configuramos Flexbox vertical para que todo se apile una cosa sobre otra */
+/* 1. EL CONTENEDOR PRINCIPAL (La caja) */
 [data-testid="stFileUploaderDropzone"] {
-    border: 4px dashed #2C74B3; /* Borde un poco más grueso */
+    border: 3px dashed #2C74B3;
     background-color: #D4E8F0;
     border-radius: 20px;
-    padding: 40px 30px;
-    min-height: 350px; /* Altura para que respire */
+    padding: 40px;
+    min-height: 350px; 
     
-    display: flex;
-    flex-direction: column; /* APARECERÁ UNO DEBAJO DEL OTRO */
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    transition: 0.3s;
+    /* TRUCO MAESTRO: Forzamos la dirección vertical en el padre */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
 }
 
-/* Hover del contenedor */
+/* Hover effect */
 [data-testid="stFileUploaderDropzone"]:hover {
     background-color: #C5E0EB;
     border-color: #1E5A96;
 }
 
-/* 2. EL ÍCONO DE LA NUBE (FontAwesome) */
-/* Se inserta ANTES (::before) de todo el contenido, por eso queda arriba */
-[data-testid="stFileUploaderDropzone"]::before {
-    content: "\f0ee"; /* Código del ícono fa-cloud-arrow-up */
+/* 2. FORZAR LA ESTRUCTURA INTERNA A VERTICAL */
+/* Streamlit crea un div interno que por defecto es horizontal (row). 
+   Aquí lo obligamos a ser vertical (column) para que la nube no se vaya de lado. */
+[data-testid="stFileUploaderDropzone"] > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 10px; /* Espacio entre los elementos */
+}
+
+/* 3. BORRAR EL ÍCONO NATIVO PEQUEÑO Y FEO */
+[data-testid="stFileUploaderDropzone"] svg {
+    display: none !important;
+}
+
+/* 4. INSERTAR NUESTRA NUBE GIGANTE (FontAwesome) */
+/* La insertamos en el contenedor interno para que obedezca el orden vertical */
+[data-testid="stFileUploaderDropzone"] > div::before {
+    content: "\f0ee"; /* fa-cloud-arrow-up */
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
-    font-size: 80px;    /* <--- TAMAÑO GIGANTE */
-    color: #2C74B3;
+    font-size: 90px;    /* TAMAÑO GIGANTE */
+    color: #2C74B3;     /* COLOR AZUL */
     display: block;
-    margin-bottom: 20px; /* Espacio debajo de la nube */
+    margin-bottom: 20px;
     line-height: 1;
 }
 
-/* 3. OCULTAR ELEMENTOS NATIVOS DE STREAMLIT */
-/* Ocultamos el ícono pequeño por defecto y los textos originales */
-[data-testid="stFileUploaderDropzone"] > div > div > svg, /* El ícono nativo pequeño */
+/* 5. TEXTO PRINCIPAL: "Arrastra y suelta..." */
+/* Ocultamos el texto original y ponemos el nuestro usando ::before en el siguiente nivel */
+[data-testid="stFileUploaderDropzone"] div div::before {
+    content: "Arrastra y suelta tu imagen aquí";
+    font-family: 'Inter', sans-serif;
+    font-size: 26px;       /* TEXTO GRANDE */
+    font-weight: 900;      /* NEGRITA */
+    color: #0A2647;
+    display: block;
+    margin-bottom: 10px;
+}
+
+/* 6. SUBTÍTULO: "Soporta JPG..." */
+[data-testid="stFileUploaderDropzone"] div div::after {
+    content: "Soporta JPG, PNG, DICOM";
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;       /* TAMAÑO MEDIANO */
+    color: #555;           /* GRIS */
+    display: block;
+    margin-bottom: 20px;
+}
+
+/* Ocultar textos originales para que no se dupliquen */
 [data-testid="stFileUploaderDropzone"] div div span,
 [data-testid="stFileUploaderDropzone"] div div small {
     display: none !important;
 }
 
-/* 4. TÍTULO PRINCIPAL: "Arrastra y suelta..." */
-/* Inyectamos este texto y lo hacemos grande */
-[data-testid="stFileUploaderDropzone"] div div::before {
-    content: "Arrastra y suelta tu imagen aquí";
-    font-family: 'Inter', sans-serif;
-    font-size: 28px;       /* <--- TEXTO MUCHO MÁS GRANDE */
-    font-weight: 900;      /* Extra negrita */
-    color: #0A2647;
-    display: block;
-    margin-bottom: 10px;
-    line-height: 1.2;
-}
-
-/* 5. SUBTÍTULO: "Soporta JPG, PNG..." */
-[data-testid="stFileUploaderDropzone"] div div::after {
-    content: "Soporta JPG, PNG, DICOM";
-    font-family: 'Inter', sans-serif;
-    font-size: 18px;       /* <--- SUBTÍTULO MÁS GRANDE */
-    font-weight: 500;
-    color: #555555;        /* Un gris un poco más oscuro para contraste */
-    display: block;
-    margin-bottom: 25px;   /* Espacio antes del botón */
-}
-
-/* 6. ESTILO DEL BOTÓN */
+/* 7. BOTÓN PERSONALIZADO */
 [data-testid="stFileUploaderDropzone"] button {
     border: 3px solid #2C74B3;
     background-color: white;
-    color: transparent; /* Hacemos transparente el texto original "Browse files" */
-    padding: 14px 35px;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 18px;
+    color: transparent; /* Texto transparente para reemplazarlo */
+    padding: 15px 40px;
+    border-radius: 12px;
+    font-size: 1px; /* Truco para esconder el texto original */
     cursor: pointer;
     transition: 0.3s;
+    width: auto;
+    min-width: 250px;
     position: relative;
-    min-width: 250px; /* Botón más ancho */
+    margin-top: 10px;
 }
 
-/* Texto nuevo del botón superpuesto */
+/* Texto nuevo del botón */
 [data-testid="stFileUploaderDropzone"] button::after {
     content: "Seleccionar Archivo";
-    position: absolute;
+    font-size: 18px; /* Tamaño real del texto del botón */
+    font-weight: 700;
     color: #2C74B3;
-    left: 50%;
+    position: absolute;
     top: 50%;
-    transform: translate(-50%, -50%); /* Centrado perfecto */
+    left: 50%;
+    transform: translate(-50%, -50%);
     width: 100%;
 }
 
 /* Hover del botón */
 [data-testid="stFileUploaderDropzone"] button:hover {
     background-color: #2C74B3;
-    border-color: #2C74B3;
 }
 [data-testid="stFileUploaderDropzone"] button:hover::after {
     color: white;
 }
 
-/* ESTILOS DEL BOTÓN ANALIZAR (Global) */
+/* ESTILOS DEL BOTÓN ANALIZAR (EXTERNO) */
 div.stButton > button[kind="secondary"] {
     background: linear-gradient(90deg, #7BA3C8 0%, #5B738A 100%);
     color: white;
     border: none;
-    height: 65px;
-    font-size: 22px;
-    font-weight: 800;
-    border-radius: 14px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    height: 60px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 12px;
 }
 </style>
 """, unsafe_allow_html=True)

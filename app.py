@@ -256,15 +256,40 @@ st.markdown("""
     color: white;
 }
 
-/* Estilo botón Analizar */
-div.stButton > button[kind="secondary"] {
-    background: linear-gradient(90deg, #7BA3C8 0%, #5B738A 100%);
-    color: white;
-    border: none;
-    height: 60px;
-    font-size: 26px;
-    font-weight: 900;
-    border-radius: 70px;
+/* 1. Estado Normal */
+div.stButton > button {
+    background: linear-gradient(90deg, #7BA3C8 0%, #5B738A 100%) !important;
+    color: white !important;
+    border: none !important;
+    height: 60px !important;
+    font-size: 26px !important;
+    font-weight: 900 !important;
+    border-radius: 70px !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    transition: transform 0.2s ease !important;
+}
+
+/* 2. Estado Hover (Mouse encima) */
+div.stButton > button:hover {
+    background: linear-gradient(90deg, #5B738A 0%, #7BA3C8 100%) !important; /* Invertir degradado */
+    color: white !important;
+    transform: scale(1.02) !important; /* Pequeño efecto zoom */
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3) !important;
+}
+
+/* 3. Estado Active/Focus (Cuando haces clic) - QUITA EL BORDE ROJO DE STREAMLIT */
+div.stButton > button:active, 
+div.stButton > button:focus {
+    color: white !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* 4. Asegurar que el texto dentro del botón sea visible */
+div.stButton > button p {
+    font-size: 26px !important; 
+    font-weight: 900 !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -316,7 +341,7 @@ with col1:
     analyze_clicked = st.button(
         "Iniciar Análisis",
         key="analyze_btn",
-        use_container_width=True
+        use_container_width=True 
     )
 
     if analyze_clicked:

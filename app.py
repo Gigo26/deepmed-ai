@@ -174,8 +174,7 @@ resnet_model.to(device)
 # ==========================================================
 ruta_modelo_vgg = "modelo_vgg16_completo.pt"
 
-vgg_model = LungVGG16()                 # <--- instancias tu clase
-vgg_model.load_state_dict(torch.load(ruta_modelo_vgg, map_location=device))
+vgg_model = torch.load(ruta_modelo_vgg, map_location=device)
 vgg_model.eval()
 vgg_model.to(device)
 

@@ -55,18 +55,17 @@ transform = transforms.Compose([
 CLASSES = ["Normal", "Benigno", "Maligno"]
 
 # ==========================================================
-# 3. CARGAR MODELO ENTRENADO (AQUÍ SE ARREGLA LA LÓGICA)
+# 3. CARGAR MODELO ENTRENADO (CORREGIDO)
 # ==========================================================
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = LungCNN().to(device)
-
-# ⚠️ MODIFICA ESTA RUTA:
 ruta_modelo = "modelo_cnn_completo.pt"
 
-state_dict = torch.load(ruta_modelo, map_location=device)
-model.load_state_dict(state_dict)
+# Cargar el modelo completo (arquitectura + pesos)
+model = torch.load(ruta_modelo, map_location=device)
+model.to(device)
 model.eval()
+
 
 # ==========================================================
 # 4. CONFIGURACIÓN DE PÁGINA

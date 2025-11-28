@@ -527,7 +527,7 @@ with col2:
                 <p style="font-size:36px; color:#0A2647; font-weight:900; margin-top: 0;">
                     {conf:.1f}%
                 </p>
-                {/* Barra de progreso visual */}
+                <!-- Barra de progreso visual -->
                 <div style="
                     height: 15px; 
                     background-color: #eee; 

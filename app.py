@@ -120,10 +120,36 @@ class LungVGG16(nn.Module):
 # ==========================================================
 # 2. TRANSFORMACIONES Y CLASES
 # ==========================================================
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
+# -------------------------
+# 1) Transform para tu CNN
+# -------------------------
+transform_cnn = transforms.Compose([
+    transforms.Resize((224,224)),
     transforms.ToTensor()
 ])
+
+img_cnn = transform_cnn(image).unsqueeze(0).to(device)
+
+# -------------------------
+# 2) Transform para VGG16 y ResNet50
+# -------------------------
+transform_vgg = transforms.Compose([
+    transforms.Resize((224,224)),
+    transforms.ToTensor(),
+    transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
+])
+
+img_vgg = transform_vgg(image).unsqueeze(0).to(device)
+img_res = transform_vgg(image).unsqueeze(0).to(device)
+
+# -------------------------
+# 3) Transform para EfficientNetB0
+# -------------------------
+transform_eff = EfficientNet_B0_Weights.IMAGENET1K_V1.transforms()
+img_eff = transform_eff(image).unsqueeze(0).to(device)
 
 CLASSES = ["Benigno", "Maligno", "Normal"]
 
@@ -153,7 +179,8 @@ resnet_model.to(device)
 # ==========================================================
 ruta_modelo_vgg = "modelo_vgg16_completo.pt"
 
-vgg_model = torch.load(ruta_modelo_vgg, map_location=device)
+vgg_model = LungVGG16()                 # <--- instancias tu clase
+vgg_model.load_state_dict(torch.load(ruta_modelo_vgg, map_location=device))
 vgg_model.eval()
 vgg_model.to(device)
 
@@ -533,14 +560,25 @@ with col1:
             try:
                 # --- Procesar la imagen una sola vez ---
                 image = Image.open(uploaded_file).convert("RGB")
-                img_tensor = transform(image).unsqueeze(0).to(device)
+                # 1. CNN (sin normalización ImageNet)
+                img_cnn = transform_cnn(image).unsqueeze(0).to(device)
+                
+                # 2. VGG16 (normalización ImageNet)
+                img_vgg = transform_vgg(image).unsqueeze(0).to(device)
+                
+                # 3. ResNet50 (igual que VGG: normalización ImageNet)
+                img_res = transform_vgg(image).unsqueeze(0).to(device)
+                
+                # 4. EfficientNet (normalización especial)
+                transform_eff = EfficientNet_B0_Weights.IMAGENET1K_V1.transforms()
+                img_eff = transform_eff(image).unsqueeze(0).to(device)
 
                 # =====================
                 #    🔹 1) CNN
                 # =====================
                 start_cnn = time.time()
                 with torch.no_grad():
-                    out_cnn = model(img_tensor)
+                    out_cnn = model(img_cnn)
                     probs_cnn = torch.softmax(out_cnn, dim=1)
                     conf_cnn, pred_cnn = torch.max(probs_cnn, 1)
 
@@ -553,7 +591,7 @@ with col1:
                 # =============================
                 start_eff = time.time()
                 with torch.no_grad():
-                    out_eff = eff_model(img_tensor)
+                    out_eff = eff_model(img_eff)
                     probs_eff = torch.softmax(out_eff, dim=1)
                     conf_eff, pred_eff = torch.max(probs_eff, 1)
 
@@ -566,7 +604,7 @@ with col1:
                 # =============================
                 start_vgg = time.time()
                 with torch.no_grad():
-                    out_vgg = vgg_model(img_tensor)
+                    out_vgg = vgg_model(img_vgg)
                     probs_vgg = torch.softmax(out_vgg, dim=1)
                     conf_vgg, pred_vgg = torch.max(probs_vgg, 1)
                 
@@ -579,7 +617,7 @@ with col1:
                 # =============================
                 start_res = time.time()
                 with torch.no_grad():
-                    out_res = resnet_model(img_tensor)
+                    out_res = resnet_model(img_res)
                     probs_res = torch.softmax(out_res, dim=1)
                     conf_res, pred_res = torch.max(probs_res, 1)
                 

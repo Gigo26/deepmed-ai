@@ -164,7 +164,7 @@ model.eval()
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 resnet_model = LungResNet50()
-resnet_model.load_state_dict(torch.load("modelo_resnet50_modelo.pt", map_location=device))
+resnet_model.load_state_dict(torch.load("modelo_resnet50_completo.pt", map_location=device))
 resnet_model.eval()
 resnet_model.to(device)
 

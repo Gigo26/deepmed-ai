@@ -74,23 +74,23 @@ class LungCNN(nn.Module):
 # ==========================================================
 # 1. MODELO EFFICIENTNET
 # ==========================================================
-class LungEfficientNet(nn.Module):
-    def __init__(self):
-        super(LungEfficientNet, self).__init__()
-
-        # Cargar EfficientNetB0 preentrenada
-        self.model = efficientnet_b0(weights=EfficientNet_B0_Weights.IMAGENET1K_V1)
-
-        # Congelar características
-        for param in self.model.features.parameters():
-            param.requires_grad = False
-
+#class LungEfficientNet(nn.Module):
+ #   def __init__(self):
+  #      super(LungEfficientNet, self).__init__()
+#
+ #       # Cargar EfficientNetB0 preentrenada
+  #      self.model = efficientnet_b0(weights=EfficientNet_B0_Weights.IMAGENET1K_V1)
+#
+ #       # Congelar características
+  #      for param in self.model.features.parameters():
+   #         param.requires_grad = False
+#
         # Reemplazar la capa final
-        in_features = self.model.classifier[1].in_features
-        self.model.classifier[1] = nn.Linear(in_features, 3)
+ #       in_features = self.model.classifier[1].in_features
+  #      self.model.classifier[1] = nn.Linear(in_features, 3)
 
-    def forward(self, x):
-        return self.model(x)
+   # def forward(self, x):
+    #    return self.model(x)
 
 # ==========================================================
 # 1. MODELO VGG16

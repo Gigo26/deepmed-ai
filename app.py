@@ -452,65 +452,51 @@ with col1:
     analyze_clicked = st.button("Iniciar Análisis", use_container_width=True)
 
     if analyze_clicked:
-        if uploaded_file is None:
-            st.error("⚠️ Por favor sube una imagen primero")
-        else:
-            start_time = time.time()
+    if uploaded_file is None:
+        st.error("⚠️ Por favor sube una imagen primero")
+    else:
+        try:
+            # ======================================
+            #     🔥 PROCESAR IMAGEN UNA SOLA VEZ
+            # ======================================
+            image = Image.open(uploaded_file).convert("RGB")
+            img_tensor = transform(image).unsqueeze(0).to(device)
 
-            try:
-                # ==============================
-                #  🔥 INFERENCIA REAL DEL MODELO
-                # ==============================
-                image = Image.open(uploaded_file).convert("RGB")
-                img_tensor = transform(image).unsqueeze(0).to(device)
+            # --- 1) CNN ---
+            start_cnn = time.time()
+            with torch.no_grad():
+                out_cnn = model(img_tensor)
+                probs_cnn = torch.softmax(out_cnn, dim=1)
+                conf_cnn, pred_cnn = torch.max(probs_cnn, 1)
 
-                with torch.no_grad():
-                    output = model(img_tensor)
-                    probabilities = torch.softmax(output, dim=1)
-                    confidence, predicted = torch.max(probabilities, 1)
+            cnn_diag = CLASSES[pred_cnn.item()]
+            cnn_conf = float(conf_cnn.item() * 100)
+            cnn_time = round(time.time() - start_cnn, 3)
 
-                diagnosis = CLASSES[predicted.item()]
-                confidence_pct = float(confidence.item() * 100)
-                inference_time = round(time.time() - start_time, 2)
+            # --- 2) EfficientNet ---
+            start_eff = time.time()
+            with torch.no_grad():
+                out_eff = eff_model(img_tensor)
+                probs_eff = torch.softmax(out_eff, dim=1)
+                conf_eff, pred_eff = torch.max(probs_eff, 1)
 
-                # === 1) CNN === 
-                image = Image.open(uploaded_file).convert("RGB")
-img_tensor = transform(image).unsqueeze(0).to(device)
+            eff_diag = CLASSES[pred_eff.item()]
+            eff_conf = float(conf_eff.item() * 100)
+            eff_time = round(time.time() - start_eff, 3)
 
-with torch.no_grad():
-    output = model(img_tensor)
-    probs = torch.softmax(output, dim=1)
-    conf_cnn, pred_cnn = torch.max(probs, 1)
+            # ======================================
+            #      🔥 GUARDAR RESULTADOS
+            # ======================================
+            st.session_state["multi_results"] = {
+                "CNN":              (cnn_diag, cnn_conf, cnn_time),
+                "EfficientNetB0":   (eff_diag, eff_conf, eff_time)
+            }
+            st.session_state["analysis_complete"] = True
 
-cnn_diag = CLASSES[pred_cnn.item()]
-cnn_conf = float(conf_cnn.item() * 100)
-cnn_time = round(time.time() - start_time, 3)
+            st.rerun()
 
-
-# === 2) EfficientNet ===
-start_eff = time.time()
-
-with torch.no_grad():
-    output_eff = eff_model(img_tensor)     # Usa el MISMO tensor
-    probs_eff = torch.softmax(output_eff, dim=1)
-    conf_eff, pred_eff = torch.max(probs_eff, 1)
-
-eff_diag = CLASSES[pred_eff.item()]
-eff_conf = float(conf_eff.item() * 100)
-eff_time = round(time.time() - start_eff, 3)
-
-
-# === Guardar todo ===
-st.session_state["multi_results"] = {
-    "CNN":      (cnn_diag, cnn_conf, cnn_time),
-    "EfficientNetB0": (eff_diag, eff_conf, eff_time)
-}
-st.session_state["analysis_complete"] = True
-
-st.rerun()
-
-            except Exception as e:
-                st.error(f"Error durante el análisis: {e}")
+        except Exception as e:
+            st.error(f"Error durante el análisis: {e}")
 
 # ==========================================================
 # COLUMNA 2 — RESULTADOS

@@ -216,22 +216,29 @@ with col1:
 
     # ---- SUBIMOS EL file_uploader (invisible) ----
     uploaded_file = st.file_uploader(
-        "Selecciona una imagen",
-        type=[".jpg", ".jpeg", ".png", ".dcm"],
-        label_visibility="collapsed",
-        key="ct_input"
-    )
+    "Selecciona imagen",
+    type=["jpg","jpeg","png","dcm"],
+    key="ct_input"
+)
+st.markdown("""
+<script>
+document.querySelector('[data-testid="stFileUploader"]').id = 'real_uploader';
+</script>
+""", unsafe_allow_html=True)
 
     # ---- CUADRO PUNTEADO CON INPUT INVISIBLE ----
     st.markdown("""
-    <div class="upload-box">
-        <input type="file" class="file-input-layer" id="file_uploader_front">
-        <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
-        <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
-        <div class="upload-subtext">Soporta JPG, PNG, DICOM</div>
-        <div class="upload-btn-visible">Seleccionar Archivo</div>
-    </div>
-    """, unsafe_allow_html=True)
+<div class="upload-box" onclick="document.getElementById('real_uploader').click()">
+    <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
+    <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
+    <div class="upload-subtext">Soporta JPG, PNG, DICOM</div>
+    <div class="upload-btn-visible">Seleccionar Archivo</div>
+</div>
+
+<script>
+document.getElementById('real_uploader').style.display = 'none';
+</script>
+""", unsafe_allow_html=True)
 
     # ---- Mostrar imagen subida ----
     if uploaded_file is not None:

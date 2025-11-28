@@ -355,7 +355,7 @@ with col1:
 with col2:
     st.markdown("""
     <h2 style="font-weight:900; color:#0A2647;">
-        <i class="fa-solid fa-microscope"></i> Resultados del Diagnóstico
+        <i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico
     </h2>
     <hr>
     <p style="padding:20px; color:#777; font-size:15px;">

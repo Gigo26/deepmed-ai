@@ -208,48 +208,47 @@ col1, col2 = st.columns([1, 1], gap="large")
 with col1:
 
     st.markdown("""
-    <h2 style="font-weight:900; color:#0A2647;">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Subir Tomografía (CT)
-    </h2>
-    <hr>
+        <h2 style="font-weight:900; color:#0A2647;">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Subir Tomografía (CT)
+        </h2>
+        <hr>
     """, unsafe_allow_html=True)
 
-    # ---- SUBIMOS EL file_uploader (invisible) ----
+    # ---- FILE UPLOADER REAL (OCULTO) ----
     uploaded_file = st.file_uploader(
-    "Selecciona imagen",
-    type=["jpg","jpeg","png","dcm"],
-    key="ct_input"
-)
-st.markdown("""
-<script>
-document.querySelector('[data-testid="stFileUploader"]').id = 'real_uploader';
-</script>
-""", unsafe_allow_html=True)
+        "Selecciona una imagen",
+        type=["jpg", "jpeg", "png", "dcm"],
+        key="real_uploader",
+        label_visibility="collapsed"
+    )
 
-    # ---- CUADRO PUNTEADO CON INPUT INVISIBLE ----
+    # ---- FORZAR ID AL CONTENEDOR DEL FILE UPLOADER ----
     st.markdown("""
-<div class="upload-box" onclick="document.getElementById('real_uploader').click()">
-    <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
-    <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
-    <div class="upload-subtext">Soporta JPG, PNG, DICOM</div>
-    <div class="upload-btn-visible">Seleccionar Archivo</div>
-</div>
+    <script>
+    // Cambiar ID al uploader real (necesario para simular el click)
+    let uploader = window.parent.document.querySelector('[data-testid="stFileUploader"]');
+    if(uploader){ uploader.id = "hidden_uploader"; }
+    </script>
+    """, unsafe_allow_html=True)
 
-<script>
-document.getElementById('real_uploader').style.display = 'none';
-</script>
-""", unsafe_allow_html=True)
+    # ---- CUADRO PUNTEADO ----
+    st.markdown("""
+    <div class="upload-box" onclick="document.getElementById('hidden_uploader').click()">
+        <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
+        <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
+        <div class="upload-subtext">Soporta JPG, PNG, DICOM</div>
+        <div class="upload-btn-visible">Seleccionar Archivo</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # ---- Mostrar imagen subida ----
+    # ---- MOSTRAR IMAGEN ----
     if uploaded_file is not None:
         st.image(uploaded_file, use_column_width=True)
 
     # ---- BOTÓN ANALIZAR ----
-    st.markdown("")
     analyze_clicked = st.button(
         "Iniciar Análisis",
         key="analyze_btn",
-        help="Procesar la tomografía",
         use_container_width=True
     )
 

@@ -143,137 +143,81 @@ st.markdown("""
 # ==========================================================
 st.markdown("""
 <style>
-
-body, [data-testid="stAppViewContainer"] {
-    background-color: #E8F4F8 !important;
-    background-image: radial-gradient(circle, #000 0.5px, transparent 0.5px);
-    background-size: 20px 20px;
-    font-family: 'Inter', sans-serif;
+/* Fondo general */
+[data-testid="stAppViewContainer"] {
+    background-color: #E8F4F8;
 }
 
-/* ---- INPUT REAL UBICADO SOBRE EL CUADRO PUNTEADO ---- */
-.file-input-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;        /* invisible */
-    z-index: 100;      /* encima del cuadro */
-    cursor: pointer;   /* hace click */
+/* 1. Ocultar el texto pequeño default de Streamlit ("Drag and drop file here") */
+[data-testid="stFileUploaderDropzone"] div div::before {
+    content: "Arrastra y suelta tu imagen aquí";
+    font-size: 18px;
+    font-weight: 800;
+    color: #0A2647;
+    display: block;
+    margin-bottom: 10px;
 }
 
-/* ---- CUADRO PUNTEADO ---- */
-.upload-box {
-    position: relative;      /* para que el input se ubique dentro */
-    padding: 60px 40px;
+[data-testid="stFileUploaderDropzone"] div div span {
+    display: none;
+}
+
+/* 2. Estilizar la Zona de Drop (La caja punteada) */
+[data-testid="stFileUploaderDropzone"] {
     border: 3px dashed #2C74B3;
-    border-radius: 16px;
     background-color: #D4E8F0;
-    text-align: center;
-    min-height: 350px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    border-radius: 16px;
+    padding: 40px 20px;
     align-items: center;
-
-    transition: 0.25s;
+    justify-content: center;
+    min-height: 250px; /* Altura del cuadro */
+    transition: 0.3s;
 }
 
-.upload-box:hover {
+/* Hover effect */
+[data-testid="stFileUploaderDropzone"]:hover {
     background-color: #C5E0EB;
     border-color: #1E5A96;
 }
 
-/* Ícono */
-.cloud-icon {
-    font-size: 80px;
-    color: #2C74B3;
-    margin-bottom: 20px;
-}
-
-/* Texto */
-.upload-main-text {
-    font-size: 18px;
-    font-weight: 800;
-}
-
-.upload-subtext {
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 25px;
-}
-
-/* Botón falso */
-.upload-btn-visible {
-    background-color: white;
+/* 3. Estilizar el Botón "Browse Files" */
+[data-testid="stFileUploaderDropzone"] button {
     border: 2px solid #2C74B3;
     color: #2C74B3;
-    padding: 11px 32px;
+    background-color: white;
+    padding: 10px 25px;
     border-radius: 8px;
     font-weight: 700;
+    transition: 0.3s;
+    margin-top: 10px; /* Separar del texto */
 }
 
-/* ---- BOTÓN INICIAR ANÁLISIS ---- */
-.analyze-btn {
-    width: 100%;
-    padding: 22px 26px;
-    font-size: 22px;
-    font-weight: 800;
+[data-testid="stFileUploaderDropzone"] button:hover {
+    background-color: #2C74B3;
     color: white;
+    border-color: #2C74B3;
+}
 
+/* 4. Ícono de Nube (Truco visual usando ::after) */
+[data-testid="stFileUploaderDropzone"]::after {
+    content: "☁️"; /* Puedes usar un emoji o intentar inyectar FontAwesome si es vital */
+    font-size: 60px;
+    color: #2C74B3;
+    display: block;
+    order: -1; /* Ponerlo arriba del todo */
+    margin-bottom: 15px;
+}
+
+/* Botón de Análisis Grande */
+div.stButton > button[kind="secondary"] { /* Ajusta si es primary o secondary */
     background: linear-gradient(90deg, #7BA3C8 0%, #5B738A 100%);
+    color: white;
     border: none;
-    border-radius: 16px;
-    cursor: pointer;
-
-    transition: 0.25s;
-    box-shadow: 0 4px 10px rgba(80, 100, 130, 0.3);
+    height: 60px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 12px;
 }
-
-/* ⚠️ Esconder por completo el contenedor visible del file_uploader */
-[data-testid="stFileUploader"] {
-    visibility: hidden !important;
-    height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: hidden !important;
-}
-
-/* Elimina dropzone gris */
-[data-testid="stFileUploaderDropzone"] {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    padding: 0 !important;
-}
-
-/* Elimina el texto "drag & drop" */
-[data-testid="stFileUploaderInstructions"] {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-}
-
-/* Elimina la etiqueta invisible que deja espacio */
-[data-testid="stFileUploaderLabel"] {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.analyze-btn:hover {
-    background: linear-gradient(90deg, #88B4DA 0%, #6A849C 100%);
-    transform: translateY(-2px);
-}
-
-.analyze-btn:active {
-    transform: scale(0.98);
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -302,48 +246,29 @@ col1, col2 = st.columns([1, 1], gap="large")
 # COLUMNA 1 — SUBIR IMAGEN
 # ==========================================================
 with col1:
-
-    # 1. Ajuste en el Título y la Línea:
-    # Dejamos un pequeño margen abajo del HR (5px) para que no sea cero absoluto
     st.markdown("""
     <h2 style="font-weight:900; color:#0A2647; margin-bottom: 5px;">
         <i class="fa-solid fa-cloud-arrow-up"></i> Subir Tomografía (CT)
     </h2>
-    <hr style="margin-top: 0px; margin-bottom: 5px;">
+    <hr style="margin-top: 0px; margin-bottom: 15px;">
     """, unsafe_allow_html=True)
 
-    # ---- SUBIMOS EL file_uploader (invisible) ----
+    # ESTE ES EL UPLOADER REAL (Ya no lo ocultaremos, lo transformaremos)
     uploaded_file = st.file_uploader(
-        "Selecciona una imagen",
+        "Sube tu tomografía", # Texto para accesibilidad
         type=["jpg", "jpeg", "png", "dcm"],
-        label_visibility="collapsed",
         key="ct_input"
     )
 
-    # ---- CUADRO PUNTEADO ----
-    # 2. Ajuste clave: Usamos -10px en lugar de -25px.
-    # Esto "jala" el cuadro hacia arriba un poco, pero deja un espacio visible y estético.
-    st.markdown("""
-    <div class="upload-box" style="margin-top: -10px;">
-        <input type="file" class="file-input-layer" id="file_uploader_front">
-        <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
-        <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
-        <div class="upload-subtext">Soporta JPG, PNG, DICOM</div>
-        <div class="upload-btn-visible">Seleccionar Archivo</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ---- Mostrar imagen subida ----
     if uploaded_file is not None:
         st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
         st.image(uploaded_file, use_column_width=True)
 
-    # ---- BOTÓN ANALIZAR ----
-    st.markdown("<br>", unsafe_allow_html=True) # Un pequeño salto de línea antes del botón
+    st.markdown("<br>", unsafe_allow_html=True)
+    
     analyze_clicked = st.button(
         "Iniciar Análisis",
         key="analyze_btn",
-        help="Procesar la tomografía",
         use_container_width=True
     )
 

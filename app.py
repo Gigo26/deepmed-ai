@@ -501,9 +501,6 @@ with col2:
         border-radius:16px;
         box-shadow:0 4px 12px rgba(0,0,0,0.1);
         ">
-        <h3 style="color:#0A2647; font-weight:900; text-align:center;">
-        Resultado del Modelo
-        </h3>
         
         <div style="text-align:center;
         padding: 15px;
@@ -516,19 +513,25 @@ with col2:
         </p>
         </div>
         
-        <p><b>Nivel de Confianza:</b></p>
-        <p style="font-size:36px; font-weight:900;">{conf:.1f}%</p>
+        <p style="color:#000; font-weight:700;"><b>Nivel de Confianza:</b></p>
+        <p style="font-size:36px; font-weight:900; color:#000;">{conf:.1f}%</p>
         
         <div style="height: 15px; background:#eee; border-radius: 7px;">
         <div style="width:{conf}%; height:100%; background:{diag_color};"></div>
         </div>
         
         <br>
-        <p><b>Modelo Utilizado:</b> CNN personalizada</p>
-        <p><b>Tiempo de Inferencia:</b> {inf_time} segundos</p>
+        
+        <p style="color:#000; font-weight:700;">
+        <b>Modelo Utilizado:</b> CNN personalizada
+        </p>
+        
+        <p style="color:#000; font-weight:700;">
+        <b>Tiempo de Inferencia:</b> {inf_time} segundos
+        </p>
+        
         </div>
         """, unsafe_allow_html=True)
-
 
 
 

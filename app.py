@@ -518,9 +518,9 @@ with col2:
         <hr>
     """, unsafe_allow_html=True)
 
-    # ==========================================================
+    # ------------------------------------------------------
     #   FUNCIÓN DE COLOR POR DIAGNÓSTICO
-    # ==========================================================
+    # ------------------------------------------------------
     def get_diag_color(diag):
         colores = {
             "Normal": "#28A745",   # Verde
@@ -529,9 +529,9 @@ with col2:
         }
         return colores.get(diag, "#5B6DFF")  # Azul si no coincide
 
-    # ==========================================================
-    #   SI EL ANÁLISIS ESTÁ COMPLETO → MOSTRAR TABLA
-    # ==========================================================
+    # ------------------------------------------------------
+    #   SI HAY RESULTADOS → MOSTRAR TABLA
+    # ------------------------------------------------------
     if "analysis_complete" in st.session_state:
 
         results = st.session_state["multi_results"]
@@ -543,41 +543,31 @@ with col2:
         <hr>
         """, unsafe_allow_html=True)
 
-        # Crear tabla
-        tabla_html = """
-        <table style="width:100%; border-collapse:collapse; 
-                      font-family:Inter; font-size:16px; 
-                      border-radius:10px; overflow:hidden;">
-            <tr style="background:#0A2647; color:white; text-align:center;">
-                <th style="padding:10px;">Modelo</th>
-                <th style="padding:10px;">Predicción</th>
-                <th style="padding:10px;">Confianza</th>
-                <th style="padding:10px;">Tiempo</th>
-            </tr>
-        """
+        # 💡 OJO: todas las líneas HTML empiezan con "<", sin espacios
+        tabla_html = (
+            "<table style='width:100%; border-collapse:collapse; "
+            "font-family:Inter; font-size:16px; "
+            "border-radius:10px; overflow:hidden;'>"
+            "<tr style='background:#0A2647; color:white; text-align:center;'>"
+            "<th style='padding:10px;'>Modelo</th>"
+            "<th style='padding:10px;'>Predicción</th>"
+            "<th style='padding:10px;'>Confianza</th>"
+            "<th style='padding:10px;'>Tiempo</th>"
+            "</tr>"
+        )
 
-        # Agregar filas
         for modelo, (diag, conf, tiempo) in results.items():
-
             bg = get_diag_color(diag)
-            bg_soft = bg + "20"  # versión suave
+            bg_soft = bg + "20"
 
-            tabla_html += f"""
-            <tr style="text-align:center; background:{bg_soft};">
-                <td style="padding:10px; font-weight:700; color:#0A2647;">
-                    {modelo}
-                </td>
-                <td style="padding:10px; color:{bg}; font-weight:900;">
-                    {diag}
-                </td>
-                <td style="padding:10px; font-weight:900; color:#0A2647;">
-                    {conf:.1f}%
-                </td>
-                <td style="padding:10px; color:#0A2647;">
-                    {tiempo}s
-                </td>
-            </tr>
-            """
+            tabla_html += (
+                f"<tr style='text-align:center; background:{bg_soft};'>"
+                f"<td style='padding:10px; font-weight:700; color:#0A2647;'>{modelo}</td>"
+                f"<td style='padding:10px; color:{bg}; font-weight:900;'>{diag}</td>"
+                f"<td style='padding:10px; font-weight:900; color:#0A2647;'>{conf:.1f}%</td>"
+                f"<td style='padding:10px; color:#0A2647;'>{tiempo}s</td>"
+                "</tr>"
+            )
 
         tabla_html += "</table>"
 

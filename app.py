@@ -204,7 +204,7 @@ st.markdown("""
 
 /* Inyectamos nuestro Título */
 [data-testid="stFileUploaderDropzone"] > div::before {
-    content: "Arrastra y suelta tu imagen aquí";
+    content: "Arrastra y suelta o agrega tu imagen aquí";
     font-size: 26px;
     font-weight: 900;
     color: #0A2647;
@@ -214,7 +214,7 @@ st.markdown("""
 
 /* Inyectamos nuestro Subtítulo */
 [data-testid="stFileUploaderDropzone"] > div::after {
-    content: "Soporta JPG, PNG, DICOM";
+    content: "Soporta JPG, JPEG, PNG";
     font-size: 16px;
     color: #666;
     margin-bottom: 20px;

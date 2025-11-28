@@ -187,9 +187,7 @@ st.markdown("""
     line-height: 1;
 }
 
-/* 3. TEXTO PRINCIPAL: "Arrastra y suelta..." */
-/* Reemplazamos el texto 'Drag and drop' usando ::after del div interno */
-/* Primero ocultamos todo lo nativo */
+/* 3. TEXTO PRINCIPAL */
 [data-testid="stFileUploaderDropzone"] > div {
     display: flex !important;
     flex-direction: column !important;
@@ -256,7 +254,7 @@ st.markdown("""
     color: white;
 }
 
-/* 1. Estado Normal */
+/* ESTILOS BOTONES GENERALES */
 div.stButton > button {
     background: linear-gradient(90deg, #7BA3C8 0%, #5B738A 100%) !important;
     color: white !important;
@@ -269,15 +267,13 @@ div.stButton > button {
     transition: transform 0.2s ease !important;
 }
 
-/* 2. Estado Hover (Mouse encima) */
 div.stButton > button:hover {
-    background: linear-gradient(90deg, #5B738A 0%, #7BA3C8 100%) !important; /* Invertir degradado */
+    background: linear-gradient(90deg, #5B738A 0%, #7BA3C8 100%) !important;
     color: white !important;
-    transform: scale(1.02) !important; /* Pequeño efecto zoom */
+    transform: scale(1.02) !important;
     box-shadow: 0 6px 12px rgba(0,0,0,0.3) !important;
 }
 
-/* 3. Estado Active/Focus (Cuando haces clic) - QUITA EL BORDE ROJO DE STREAMLIT */
 div.stButton > button:active, 
 div.stButton > button:focus {
     color: white !important;
@@ -286,10 +282,29 @@ div.stButton > button:focus {
     outline: none !important;
 }
 
-/* 4. Asegurar que el texto dentro del botón sea visible */
 div.stButton > button p {
     font-size: 26px !important; 
     font-weight: 900 !important;
+}
+
+/* ======================================================
+   ESTILO NUEVO: CAJA PARA CUANDO YA HAY IMAGEN
+   ====================================================== */
+.uploaded-image-box {
+    border: 3px solid #2C74B3; /* Borde sólido */
+    background-color: #D4E8F0;
+    border-radius: 20px;
+    padding: 20px;
+    min-height: 350px; /* Misma altura que el uploader */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Ocultar texto de archivo pequeño de Streamlit */
+[data-testid="stFileUploaderFile"] {
+    display: none !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -317,6 +332,10 @@ col1, col2 = st.columns([1, 1], gap="large")
 # ==========================================================
 # COLUMNA 1 — SUBIR IMAGEN
 # ==========================================================
+# Función para el botón de reset
+def reset_upload():
+    st.session_state["ct_input"] = None
+
 with col1:
     st.markdown("""
     <h2 style="font-weight:900; color:#0A2647; margin-bottom: 5px;">
@@ -325,19 +344,43 @@ with col1:
     <hr style="margin-top: 0px; margin-bottom: 15px;">
     """, unsafe_allow_html=True)
 
-    # ESTE ES EL UPLOADER REAL (Ya no lo ocultaremos, lo transformaremos)
+    # 1. EL UPLOADER REAL (Siempre existe en código, pero jugamos con su visibilidad)
     uploaded_file = st.file_uploader(
-        "Sube tu tomografía", # Texto para accesibilidad
+        "Sube tu tomografía", 
         type=["jpg", "jpeg", "png", "dcm"],
-        key="ct_input"
+        key="ct_input",
+        label_visibility="collapsed"
     )
 
-    if uploaded_file is not None:
-        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+    # 2. LOGICA VISUAL
+    if uploaded_file is None:
+        # SI NO HAY ARCHIVO:
+        # No hacemos nada. Se muestra el CSS del "Dropzone" punteado que ya definimos.
+        pass
+    
+    else:
+        # SI HAY ARCHIVO (EL TRUCO):
+        
+        # A) Inyectamos CSS solo ahora para OCULTAR el cuadro punteado de carga
+        st.markdown("""
+        <style>
+            [data-testid="stFileUploader"] {
+                display: none !important;
+            }
+        </style>
+        """, unsafe_allow_html=True)
+
+        # B) Dibujamos MANUALMENTE la caja sólida con la imagen dentro
+        st.markdown('<div class="uploaded-image-box">', unsafe_allow_html=True)
         st.image(uploaded_file, use_column_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # C) Botón para cambiar imagen (Reset)
+        st.button("🔄 Cambiar Imagen", on_click=reset_upload, use_container_width=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     
+    # 3. BOTÓN DE ANÁLISIS
     analyze_clicked = st.button(
         "Iniciar Análisis",
         key="analyze_btn",

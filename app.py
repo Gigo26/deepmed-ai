@@ -206,16 +206,17 @@ col1, col2 = st.columns([1, 1], gap="large")
 # COLUMNA 1 — SUBIR IMAGEN
 # ==========================================================
 with col1:
-    # 1. Ajustamos el H2 y el HR para que tengan margin 0 o muy bajo
+
+    # 1. Ajuste en el Título y la Línea:
+    # Dejamos un pequeño margen abajo del HR (5px) para que no sea cero absoluto
     st.markdown("""
-    <h2 style="font-weight:900; color:#0A2647; margin-bottom: 0px; padding-bottom: 0px;">
+    <h2 style="font-weight:900; color:#0A2647; margin-bottom: 5px;">
         <i class="fa-solid fa-cloud-arrow-up"></i> Subir Tomografía (CT)
     </h2>
-    <hr style="margin-top: 5px; margin-bottom: 0px;">
+    <hr style="margin-top: 0px; margin-bottom: 5px;">
     """, unsafe_allow_html=True)
 
     # ---- SUBIMOS EL file_uploader (invisible) ----
-    # Este elemento ocupa espacio aunque esté "collapsed", por eso usaremos margen negativo abajo
     uploaded_file = st.file_uploader(
         "Selecciona una imagen",
         type=["jpg", "jpeg", "png", "dcm"],
@@ -223,10 +224,11 @@ with col1:
         key="ct_input"
     )
 
-    # ---- CUADRO PUNTEADO CON INPUT INVISIBLE ----
-    # 2. Agregamos style="margin-top: -25px;" para subir el cuadro y pegarlo a la línea
+    # ---- CUADRO PUNTEADO ----
+    # 2. Ajuste clave: Usamos -10px en lugar de -25px.
+    # Esto "jala" el cuadro hacia arriba un poco, pero deja un espacio visible y estético.
     st.markdown("""
-    <div class="upload-box" style="margin-top: -25px;">
+    <div class="upload-box" style="margin-top: -10px;">
         <input type="file" class="file-input-layer" id="file_uploader_front">
         <i class="fa-solid fa-cloud-arrow-up cloud-icon"></i>
         <div class="upload-main-text">Arrastra y suelta tu imagen aquí</div>
@@ -235,14 +237,13 @@ with col1:
     </div>
     """, unsafe_allow_html=True)
 
-    # ---- Mostrar imagen subida (DENTRO del flujo visual si quisieras, o abajo) ----
+    # ---- Mostrar imagen subida ----
     if uploaded_file is not None:
-        # Un pequeño margen para separarlo del cuadro punteado si ya hay imagen
-        st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
         st.image(uploaded_file, use_column_width=True)
 
     # ---- BOTÓN ANALIZAR ----
-    st.markdown("") # Espacio para separar imagen del botón
+    st.markdown("<br>", unsafe_allow_html=True) # Un pequeño salto de línea antes del botón
     analyze_clicked = st.button(
         "Iniciar Análisis",
         key="analyze_btn",

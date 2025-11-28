@@ -5,6 +5,20 @@ import torch.nn.functional as F
 from torchvision import transforms
 from PIL import Image
 import numpy as np
+import time
+
+# Cargar modelo
+model = LungCNN()
+model.eval()
+
+# Transformaciones
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor()
+])
+
+# Etiquetas del modelo
+CLASSES = ["Normal", "Benigno", "Maligno"]
 
 # ==========================================================
 # 1. MODELO CNN (SE MANTIENE IGUAL)
@@ -401,21 +415,100 @@ with col1:
         use_container_width=True 
     )
 
-    if analyze_clicked:
+     if analyze_clicked:
         if uploaded_file is None:
             st.error("⚠️ Por favor sube una imagen primero")
         else:
-            st.success("✅ Procesando imagen...")
+            st.success("🔍 Procesando imagen...")
+
+            # Tiempo de inicio
+            start_time = time.time()
+
+            # Abrir imagen
+            image = Image.open(uploaded_file).convert("RGB")
+            img_tensor = transform(image).unsqueeze(0)
+
+            # Inferencia
+            with torch.no_grad():
+                output = model(img_tensor)
+                probabilities = torch.softmax(output, dim=1)
+                confidence, predicted = torch.max(probabilities, 1)
+
+            # Resultado final
+            diagnosis = CLASSES[predicted.item()]
+            confidence_pct = float(confidence.item() * 100)
+            inference_time = round(time.time() - start_time, 2)
+
+            # Guardar en session_state
+            st.session_state["diagnosis"] = diagnosis
+            st.session_state["confidence"] = confidence_pct
+            st.session_state["inference_time"] = inference_time
+
 # ==========================================================
 # COLUMNA 2 — RESULTADOS
 # ==========================================================
 with col2:
     st.markdown("""
-    <h2 style="font-weight:900; color:#0A2647;">
-        <i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico
-    </h2>
-    <hr>
-    <p style="padding:20px; color:#777; font-size:15px;">
-        Sube una imagen y presiona <b>“Iniciar Análisis”</b> para ver los resultados de la IA.
-    </p>
+        <h2 style="font-weight:900; color:#0A2647;">
+            <i class="fa-solid fa-file-medical-alt"></i> Resultados del Diagnóstico
+        </h2>
+        <hr>
     """, unsafe_allow_html=True)
+
+    # Si AÚN no se analizó nada
+    if "diagnosis" not in st.session_state:
+        st.markdown("""
+            <div style="text-align:center; padding:20px;">
+                <i class="fa-solid fa-microscope" 
+                style="font-size:60px; color:#0A2647; margin-bottom:15px;"></i>
+                <p style="color:#777; font-size:15px;">
+                    Sube una imagen y presiona <b>“Iniciar Análisis”</b> para ver los resultados de la IA.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    # SI YA HAY RESULTADOS
+    else:
+        diag = st.session_state["diagnosis"]
+        conf = st.session_state["confidence"]
+        inf_time = st.session_state["inference_time"]
+
+        st.markdown(f"""
+            <div style="
+                background:white;
+                padding:25px;
+                border-radius:16px;
+                box-shadow:0 4px 12px rgba(0,0,0,0.1);
+                margin-top:15px;
+            ">
+                <h3 style="color:#0A2647; font-weight:900; text-align:center;">
+                    Resultado del Modelo
+                </h3>
+
+                <p style="text-align:center; font-size:22px; font-weight:700; color:#2C74B3;">
+                    {diag}
+                </p>
+
+                <hr style="margin:10px 0;">
+
+                <p style="font-size:16px; color:#555;">
+                    <b>Nivel de Confianza:</b><br>
+                    <span style="font-size:26px; color:#0A2647; font-weight:900;">
+                        {conf:.1f}%
+                    </span>
+                </p>
+
+                <p style="font-size:16px; color:#555;">
+                    <b>Modelo Utilizado:</b><br>
+                    DeepResNet-50 v2
+                </p>
+
+                <p style="font-size:16px; color:#555;">
+                    <b>Tiempo de Inferencia:</b><br>
+                    {inf_time} segundos
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+
+

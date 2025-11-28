@@ -176,14 +176,16 @@ st.markdown("""
     border-color: #1E5A96;
 }
 
-/* 2. LA NUBE (Elemento superior) */
-/* Usamos ::before del contenedor principal para la nube */
+/* 2. LA NUBE (Ícono de FontAwesome) */
 [data-testid="stFileUploaderDropzone"]::before {
-    content: "☁️"; /* Emoji de nube o FontAwesome si lo tienes cargado */
-    font-size: 60px; /* Tamaño gigante */
+    content: "\f0ee";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 60px;
     color: #2C74B3;
     display: block;
     margin-bottom: 5px;
+    line-height: 1;
 }
 
 /* 3. OCULTAR TEXTOS NATIVOS DE STREAMLIT */

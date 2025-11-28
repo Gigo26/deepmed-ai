@@ -148,68 +148,121 @@ st.markdown("""
     background-color: #E8F4F8;
 }
 
-/* 1. Ocultar el texto pequeño default de Streamlit ("Drag and drop file here") */
-[data-testid="stFileUploaderDropzone"] div div::before {
-    content: "Arrastra y suelta tu imagen aquí";
-    font-size: 18px;
-    font-weight: 800;
-    color: #0A2647;
-    display: block;
-    margin-bottom: 10px;
-}
+/* =========================================
+   ESTILOS AVANZADOS DEL FILE UPLOADER
+   ========================================= */
 
-[data-testid="stFileUploaderDropzone"] div div span {
-    display: none;
-}
-
-/* 2. Estilizar la Zona de Drop (La caja punteada) */
+/* 1. CONTENEDOR PRINCIPAL (La caja punteada) */
 [data-testid="stFileUploaderDropzone"] {
     border: 3px dashed #2C74B3;
     background-color: #D4E8F0;
     border-radius: 16px;
-    padding: 40px 20px;
-    align-items: center;
+    padding: 30px;
+    min-height: 300px; /* Altura fija para que se vea amplio */
+    
+    /* Flexbox para alinear todo verticalmente */
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    min-height: 250px; /* Altura del cuadro */
+    align-items: center;
+    text-align: center;
+    gap: 10px; /* Espacio entre elementos */
     transition: 0.3s;
 }
 
-/* Hover effect */
+/* Hover del contenedor */
 [data-testid="stFileUploaderDropzone"]:hover {
     background-color: #C5E0EB;
     border-color: #1E5A96;
 }
 
-/* 3. Estilizar el Botón "Browse Files" */
-[data-testid="stFileUploaderDropzone"] button {
-    border: 2px solid #2C74B3;
+/* 2. LA NUBE (Elemento superior) */
+/* Usamos ::before del contenedor principal para la nube */
+[data-testid="stFileUploaderDropzone"]::before {
+    content: "☁️"; /* Emoji de nube o FontAwesome si lo tienes cargado */
+    font-size: 60px; /* Tamaño gigante */
     color: #2C74B3;
-    background-color: white;
-    padding: 10px 25px;
-    border-radius: 8px;
-    font-weight: 700;
-    transition: 0.3s;
-    margin-top: 10px; /* Separar del texto */
+    display: block;
+    margin-bottom: 5px;
 }
 
+/* 3. OCULTAR TEXTOS NATIVOS DE STREAMLIT */
+/* Ocultamos los textos originales para poner los nuestros */
+[data-testid="stFileUploaderDropzone"] div div span {
+    display: none;
+}
+[data-testid="stFileUploaderDropzone"] div div small {
+    display: none;
+}
+
+/* 4. TÍTULO: "Arrastra y suelta tu imagen aquí" */
+/* Usamos ::before del div interno */
+[data-testid="stFileUploaderDropzone"] div div::before {
+    content: "Arrastra y suelta tu imagen aquí";
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;       /* Letra grande */
+    font-weight: 800;      /* Negrita */
+    color: #0A2647;        /* Azul oscuro */
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* 5. SUBTÍTULO: "Soporta JPG, PNG..." */
+/* Usamos ::after del div interno */
+[data-testid="stFileUploaderDropzone"] div div::after {
+    content: "Soporta JPG, PNG, DICOM";
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;       /* Letra más pequeña */
+    color: #666666;        /* Color gris (text-light) */
+    display: block;
+    margin-bottom: 20px;   /* Espacio antes del botón */
+}
+
+/* 6. BOTÓN "Seleccionar Archivo" */
+[data-testid="stFileUploaderDropzone"] button {
+    border: 2px solid #2C74B3;
+    background-color: white;
+    color: #2C74B3;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    
+    /* Truco para cambiar el texto "Browse files" a "Seleccionar Archivo" */
+    /* Primero hacemos el texto original transparente */
+    color: transparent; 
+    position: relative;
+    width: 220px; /* Ancho fijo para que quepa el nuevo texto */
+}
+
+/* Texto nuevo del botón superpuesto */
+[data-testid="stFileUploaderDropzone"] button::after {
+    content: "Seleccionar Archivo";
+    position: absolute;
+    color: #2C74B3; /* Color real del texto */
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%); /* Centrado vertical perfecto */
+    text-align: center;
+    font-weight: 700;
+}
+
+/* Hover del botón */
 [data-testid="stFileUploaderDropzone"] button:hover {
     background-color: #2C74B3;
-    color: white;
     border-color: #2C74B3;
 }
 
-/* 4. Ícono de Nube (Truco visual usando ::after) */
-[data-testid="stFileUploaderDropzone"]::after {
-    content: "☁️"; /* Puedes usar un emoji o intentar inyectar FontAwesome si es vital */
-    font-size: 60px;
-    color: #2C74B3;
-    display: block;
-    order: -1; /* Ponerlo arriba del todo */
-    margin-bottom: 15px;
+/* Cambio de color del texto en hover */
+[data-testid="stFileUploaderDropzone"] button:hover::after {
+    color: white;
 }
 
-/* Botón de Análisis Grande */
-div.stButton > button[kind="secondary"] { /* Ajusta si es primary o secondary */
+/* ESTILOS DEL BOTÓN ANALIZAR (Global) */
+div.stButton > button[kind="secondary"] {
     background: linear-gradient(90deg, #7BA3C8 0%, #5B738A 100%);
     color: white;
     border: none;
@@ -220,7 +273,6 @@ div.stButton > button[kind="secondary"] { /* Ajusta si es primary o secondary */
 }
 </style>
 """, unsafe_allow_html=True)
-
 # ==========================================================
 # 4. HEADER HTML
 # ==========================================================
@@ -248,7 +300,7 @@ col1, col2 = st.columns([1, 1], gap="large")
 with col1:
     st.markdown("""
     <h2 style="font-weight:900; color:#0A2647; margin-bottom: 5px;">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Subir Tomografía (CT)
+        <i class="fa-solid fa-upload"></i> Subir Tomografía (CT)
     </h2>
     <hr style="margin-top: 0px; margin-bottom: 15px;">
     """, unsafe_allow_html=True)

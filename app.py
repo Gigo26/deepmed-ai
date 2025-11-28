@@ -85,6 +85,8 @@ st.markdown("""
     font-family: 'Inter', sans-serif;
 }
 
+
+
 /* Ajuste correcto del contenido */
 .stMainBlockContainer {
     padding-top: 110px !important;
@@ -289,36 +291,6 @@ div.stButton > button p {
     font-size: 26px !important; 
     font-weight: 900 !important;
 }
-
-/* Estilo para el contenedor cuando YA hay imagen (Simula ser el uploader) */
-.uploaded-preview {
-    border: 3px solid #2C74B3; /* Borde solido en vez de punteado para indicar "listo" */
-    background-color: #D4E8F0;
-    border-radius: 20px;
-    padding: 20px;
-    min-height: 350px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-/* Botón pequeño para cerrar/cambiar imagen dentro del preview */
-div.stButton > button.reset-btn {
-    background-color: transparent !important;
-    color: #cc0000 !important;
-    border: 2px solid #cc0000 !important;
-    height: auto !important;
-    padding: 5px 15px !important;
-    font-size: 14px !important;
-    margin-top: 10px !important;
-}
-
-div.stButton > button.reset-btn:hover {
-    background-color: #cc0000 !important;
-    color: white !important;
-}
 </style>
 """, unsafe_allow_html=True)
 # ==========================================================
@@ -353,51 +325,19 @@ with col1:
     <hr style="margin-top: 0px; margin-bottom: 15px;">
     """, unsafe_allow_html=True)
 
-    # 1. UPLOADER (Siempre está en el código, pero lo ocultaremos con CSS si hay archivo)
-    # Usamos un key para poder limpiar el estado
+    # ESTE ES EL UPLOADER REAL (Ya no lo ocultaremos, lo transformaremos)
     uploaded_file = st.file_uploader(
-        "Sube tu tomografía", 
+        "Sube tu tomografía", # Texto para accesibilidad
         type=["jpg", "jpeg", "png", "dcm"],
-        key="ct_input",
-        label_visibility="collapsed" # Ocultamos el label nativo pequeño
+        key="ct_input"
     )
 
-    # Lógica de Visualización
-    if uploaded_file is None:
-        # ESTADO 1: NO HAY ARCHIVO
-        # El CSS global que ya tienes se encarga de mostrar el cuadro punteado grande.
-        pass
-        
-    else:
-        # ESTADO 2: SÍ HAY ARCHIVO -> "TRUCO DE MAGIA"
-        
-        # A) Inyectamos CSS para OCULTAR el uploader original (el cuadro punteado vacío)
-        st.markdown("""
-        <style>
-            [data-testid="stFileUploaderDropzone"] {
-                display: none;
-            }
-        </style>
-        """, unsafe_allow_html=True)
-
-        # B) Mostramos nuestro contenedor "falso" con la imagen dentro
-        st.markdown('<div class="uploaded-preview">', unsafe_allow_html=True)
-        
-        # Mostramos la imagen
+    if uploaded_file is not None:
+        st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
         st.image(uploaded_file, use_column_width=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        # C) Botón para cambiar imagen (Reset)
-        # Este botón limpiará el estado para volver a mostrar el uploader
-        def reset_upload():
-            st.session_state["ct_input"] = None
-            
-        st.button("🔄 Cambiar Imagen", on_click=reset_upload, type="secondary")
 
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # BOTÓN DE ANÁLISIS
     analyze_clicked = st.button(
         "Iniciar Análisis",
         key="analyze_btn",

@@ -530,15 +530,15 @@ with col1:
                 # =============================
                 #     3) VGG16 
                 # =============================
-                start_eff = time.time()
+                start_vgg = time.time()
                 with torch.no_grad():
-                    out_eff = eff_model(img_tensor)
-                    probs_eff = torch.softmax(out_eff, dim=1)
-                    conf_eff, pred_eff = torch.max(probs_eff, 1)
-
-                eff_diag = CLASSES[pred_eff.item()]
-                eff_conf = float(conf_eff.item() * 100)
-                eff_time = round(time.time() - start_eff, 3)
+                    out_vgg = vgg_model(img_tensor)
+                    probs_vgg = torch.softmax(out_vgg, dim=1)
+                    conf_vgg, pred_vgg = torch.max(probs_vgg, 1)
+                
+                vgg_diag = CLASSES[pred_vgg.item()]
+                vgg_conf = float(conf_vgg.item() * 100)
+                vgg_time = round(time.time() - start_vgg, 3)
                 
                 # =============================
                 #    🔥 GUARDAR RESULTADOS

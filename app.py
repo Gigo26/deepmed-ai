@@ -128,8 +128,6 @@ transform_cnn = transforms.Compose([
     transforms.ToTensor()
 ])
 
-img_cnn = transform_cnn(image).unsqueeze(0).to(device)
-
 # -------------------------
 # 2) Transform para VGG16 y ResNet50
 # -------------------------
@@ -142,14 +140,10 @@ transform_vgg = transforms.Compose([
     )
 ])
 
-img_vgg = transform_vgg(image).unsqueeze(0).to(device)
-img_res = transform_vgg(image).unsqueeze(0).to(device)
-
 # -------------------------
 # 3) Transform para EfficientNetB0
 # -------------------------
 transform_eff = EfficientNet_B0_Weights.IMAGENET1K_V1.transforms()
-img_eff = transform_eff(image).unsqueeze(0).to(device)
 
 CLASSES = ["Benigno", "Maligno", "Normal"]
 

@@ -294,6 +294,63 @@ div.stButton > button p {
 </style>
 """, unsafe_allow_html=True)
 # ==========================================================
+#                     DISEÑO PARA BODY
+# ==========================================================
+st.markdown("""
+<style>
+/* Reducimos el padding general del body */
+.block-container {
+    padding-top: 40px !important;   /* antes 110px */
+    padding-bottom: 20px !important;
+}
+
+/* Ajustamos espacio después del header */
+.stMainBlockContainer {
+    padding-top: 80px !important; /* antes 110px */
+}
+
+/* Reducir alto del uploader */
+[data-testid="stFileUploaderDropzone"] {
+    min-height: 260px !important;  /* antes 350px */
+    padding: 25px !important; 
+}
+
+/* Reducir tamaño de textos del uploader */
+[data-testid="stFileUploaderDropzone"] > div::before {
+    font-size: 22px !important;
+    margin-bottom: 6px !important;
+}
+[data-testid="stFileUploaderDropzone"] > div::after {
+    font-size: 14px !important;
+}
+
+/* Reducir tamaño de la nube */
+[data-testid="stFileUploaderDropzone"]::before {
+    font-size: 65px !important;
+    margin-bottom: 18px !important;
+}
+
+/* Compactar columnas (reduce el aire vertical) */
+.css-1y4p8pa {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Compactar el título principal */
+h2 {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Reducir espacios entre elementos en general */
+.element-container {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ==========================================================
 # 4. HEADER HTML
 # ==========================================================
 st.markdown("""

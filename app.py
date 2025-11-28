@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
+from torchvision import models
 from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
 from PIL import Image
 import numpy as np
